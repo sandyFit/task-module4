@@ -1,5 +1,5 @@
 import { Given, When } from '@wdio/cucumber-framework';
-import { testCredentials } from './test-credentials.js';
+import { testCredentials } from './test-credentials';
 
 async function fill(selector, value) {
     const el = await $(selector);
@@ -62,7 +62,7 @@ Given(/^is on the Login page$/, async () => {
 When(/^the user enters a valid email and password$/, async () => {
     const creds = testCredentials.getExistingUserCredentials();
     await fill('[data-test="email"]', creds.email);
-    await fill('[data-test="password"]', creds.password);
+    await fill('[data-test="password"]', testCredentials.getCurrentPassword());
 });
 
 When(/^clicks the Login button$/, async () => {
@@ -74,15 +74,13 @@ When(/^clicks the Login button$/, async () => {
    PROFILE
 ============================ */
 Given(/^the user is logged into their account$/, async () => {
-    // Account is created in hooks.js Before hook
     const creds = testCredentials.getExistingUserCredentials();
 
     await browser.url('https://practicesoftwaretesting.com/auth/login');
     await fill('[data-test="email"]', creds.email);
-    await fill('[data-test="password"]', creds.password);
+    await fill('[data-test="password"]', testCredentials.getCurrentPassword());
     await $('[data-test="login-submit"]').click();
 
-    // Wait for successful login redirect
     await browser.waitUntil(
         async () => (await browser.getUrl()).includes('/account'),
         { timeout: 8000, timeoutMsg: 'Login redirect to account page failed' }
@@ -98,9 +96,20 @@ Given(/^is on the Profile page$/, async () => {
 });
 
 When(/^the user updates their password$/, async () => {
+    const currentPassword = testCredentials.getCurrentPassword();
     const newPassword = testCredentials.getNewPassword();
+
+    console.log(`Using current password: ${currentPassword}`);
+    console.log(`Setting new password: ${newPassword}`);
+
+    // Fill current password field (this was missing!)
+    await fill('[data-test="current-password"]', currentPassword);
+
+    // Fill new password fields
     await fill('[data-test="new-password"]', newPassword);
     await fill('[data-test="new-password-confirm"]', newPassword);
+
+    console.log('All password fields filled for update');
 });
 
 When(/^clicks the Change Password button$/, async () => {

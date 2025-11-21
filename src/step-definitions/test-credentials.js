@@ -8,7 +8,7 @@ class TestCredentials {
         this.testRunId = Date.now();
         this.randomSuffix = Math.floor(Math.random() * 1000);
 
-        // Credentials for signup - unique every time
+        // Credentials for signup
         this.newUser = {
             firstName: 'John',
             lastName: 'Doe',
@@ -23,15 +23,15 @@ class TestCredentials {
             password: 'PassWord$%391'
         };
 
-        // Existing user - uses SAME email as newUser
         this.existingUser = {
             email: `test${this.testRunId}${this.randomSuffix}@example.com`,
             password: 'PassWord$%391'
         };
 
+        this.currentPassword = 'PassWord$%391';
+
         this.newPassword = 'New_Pa$$2025';
 
-        // Track if signup has been completed
         this.signupCompleted = false;
     }
 
@@ -41,6 +41,10 @@ class TestCredentials {
 
     getExistingUserCredentials() {
         return this.existingUser;
+    }
+
+    getCurrentPassword() {
+        return this.currentPassword;
     }
 
     getNewPassword() {

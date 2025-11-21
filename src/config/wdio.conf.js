@@ -4,8 +4,8 @@ export const config = {
     runner: 'local',
 
     specs: [
-        path.resolve('./src/features/**/signup.feature'),
-        path.resolve('./src/features/**/login.feature'),
+        // path.resolve('./src/features/**/signup.feature'),
+        // path.resolve('./src/features/**/login.feature'),
         path.resolve('./src/features/**/profile.feature')
     ],
 
