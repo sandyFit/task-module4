@@ -6,9 +6,10 @@ export const config = {
     specs: [
         // path.resolve('./src/features/**/signup.feature'),
         // path.resolve('./src/features/**/login.feature'),
-        path.resolve('./src/features/**/profile.feature'),
+        //path.resolve('./src/features/**/profile.feature'),
         //path.resolve('./src/features/**/product-details.feature'),
         //path.resolve('./src/features/**/cart-operations.feature')
+        path.resolve('./src/features/**/favorites.feature')
     ],
 
     cucumberOpts: {

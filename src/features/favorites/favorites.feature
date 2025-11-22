@@ -5,4 +5,4 @@ Feature: Favorite Products
         And is in the Product Details page
         When the user clicks the Add to Favourites button
         Then the product should be added to the user's favorites list
-        And a successful message should appear
+        And the product should appear in the favorites page

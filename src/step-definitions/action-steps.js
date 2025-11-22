@@ -3,11 +3,20 @@ import { testCredentials } from './test-credentials';
 
 async function fill(selector, value) {
     const el = await $(selector);
+
     await el.waitForDisplayed({ timeout: 5000 });
+    await el.scrollIntoView();
     await el.click();
-    await browser.pause(150);
-    await el.setValue(value);
+
+    // Proper Angular clearing
+    await browser.keys(['Control', 'a']);
+    await browser.keys('Backspace');
+
+    // Type char by char so Angular triggers validation
+    await el.addValue(value);
 }
+
+
 
 /* ============================
    SIGNUP
@@ -90,31 +99,114 @@ Given(/^the user is logged into their account$/, async () => {
 });
 
 Given(/^is on the Profile page$/, async () => {
-    // Navigate directly to the profile page
-    await browser.url('https://practicesoftwaretesting.com/account/profile');
-    await browser.pause(1000); // Allow page to stabilize
+    // Don't navigate directly - use the UI navigation to ensure Angular state is properly set
+    console.log('📍 Navigating to Profile page via UI...');
+
+    // Click on the user menu/account link in the header
+    const userMenu = await $('[data-test="nav-menu"]');
+    await userMenu.waitForDisplayed({ timeout: 5000 });
+    await userMenu.click();
+
+    // Wait a bit for dropdown/navigation
+    await browser.pause(500);
+
+    // Look for Profile link
+    const profileLink = await $('a[href="/account/profile"], a[routerlink="/account/profile"]');
+    if (await profileLink.isDisplayed()) {
+        await profileLink.click();
+    } else {
+        // Fallback: navigate directly but wait for user data to load
+        await browser.url('https://practicesoftwaretesting.com/account/profile');
+    }
+
+    // Wait for the page to fully load and user data to be available
+    await browser.waitUntil(
+        async () => {
+            const url = await browser.getUrl();
+            return url.includes('/profile');
+        },
+        { timeout: 5000, timeoutMsg: 'Did not navigate to profile page' }
+    );
+
+    // CRITICAL: Wait for Angular to load user data by checking if form is ready
+    await browser.waitUntil(
+        async () => {
+            const ready = await browser.execute(() => {
+                // Check if user data is loaded by looking for populated form fields
+                const firstNameInput = document.querySelector('[data-test="first-name"], input[formcontrolname="first_name"]');
+                if (!firstNameInput) return false;
+                const value = firstNameInput.value;
+                return value && value.length > 0; // User data is loaded if first name is populated
+            });
+            return ready;
+        },
+        {
+            timeout: 10000,
+            timeoutMsg: 'Profile data did not load'
+        }
+    );
+
+    await browser.pause(1000); // Allow Angular to fully stabilize
+    console.log('✓ Profile page loaded with user data');
 });
 
 When(/^the user updates their password$/, async () => {
     const currentPassword = testCredentials.getCurrentPassword();
     const newPassword = testCredentials.getNewPassword();
 
-    console.log(`Using current password: ${currentPassword}`);
-    console.log(`Setting new password: ${newPassword}`);
+    console.log(`🔑 Updating password...`);
 
-    // Fill current password field (this was missing!)
-    await fill('[data-test="current-password"]', currentPassword);
+    // Scroll to password section
+    const passwordSection = await $('[data-test="current-password"]').parentElement().parentElement();
+    await passwordSection.scrollIntoView();
+    await browser.pause(500);
 
-    // Fill new password fields
-    await fill('[data-test="new-password"]', newPassword);
-    await fill('[data-test="new-password-confirm"]', newPassword);
+    // Fill current password
+    const currentPwdEl = await $('[data-test="current-password"]');
+    await currentPwdEl.click();
+    await browser.pause(200);
+    await browser.keys(['Control', 'a']);
+    await browser.keys('Backspace');
+    await currentPwdEl.addValue(currentPassword);
+    await browser.pause(200);
 
-    console.log('All password fields filled for update');
+    // Fill new password  
+    const newPwdEl = await $('[data-test="new-password"]');
+    await newPwdEl.click();
+    await browser.pause(200);
+    await browser.keys(['Control', 'a']);
+    await browser.keys('Backspace');
+    await newPwdEl.addValue(newPassword);
+    await browser.pause(200);
+
+    // Fill password confirmation
+    const confirmPwdEl = await $('[data-test="new-password-confirm"]');
+    await confirmPwdEl.click();
+    await browser.pause(200);
+    await browser.keys(['Control', 'a']);
+    await browser.keys('Backspace');
+    await confirmPwdEl.addValue(newPassword);
+    await browser.pause(200);
+
+    // Click away to trigger validation
+    await browser.keys('Tab');
+    await browser.pause(500);
+
+    console.log('✓ Password fields filled');
 });
 
 When(/^clicks the Change Password button$/, async () => {
-    await $('[data-test="change-password-submit"]').click();
+    const submitBtn = await $('[data-test="change-password-submit"]');
+    await submitBtn.scrollIntoView();
+    await submitBtn.waitForClickable({ timeout: 5000 });
+    await submitBtn.click();
+
+    console.log('✓ Change Password button clicked');
+
+    // Wait a moment for submission to process
+    await browser.pause(2000);
 });
+
 
 /* ============================
     PRODUCTS
@@ -174,7 +266,6 @@ Given(/^the user is on a Product Details page$/, async () => {
     await $('[data-test="product-name"]').waitForDisplayed({ timeout: 10000 });
 });
 
-
 When(/^the user clicks Add to cart button$/, async () => {
     const cartBtn = await $('[data-test="add-to-cart"]');
     await cartBtn.waitForClickable({ timeout: 5000 });
@@ -186,7 +277,25 @@ When(/^the user clicks Add to cart button$/, async () => {
    FAVORITES
 ============================ */
 Given(/^the user is logged in$/, async () => {
+    // Actually perform login, not just navigate to login page
+    const creds = testCredentials.getExistingUserCredentials();
+
     await browser.url('https://practicesoftwaretesting.com/auth/login');
+
+    // Fill login form
+    await fill('[data-test="email"]', creds.email);
+    await fill('[data-test="password"]', testCredentials.getCurrentPassword());
+
+    // Click login button
+    await $('[data-test="login-submit"]').click();
+
+    // Wait for successful login (redirect to account page)
+    await browser.waitUntil(
+        async () => (await browser.getUrl()).includes('/account'),
+        { timeout: 8000, timeoutMsg: 'Login failed - did not redirect to account page' }
+    );
+
+    console.log('✓ User logged in successfully');
 });
 
 Given(/^is in the Product Details page$/, async () => {
@@ -208,8 +317,15 @@ Given(/^is in the Product Details page$/, async () => {
     );
 
     await $('[data-test="product-name"]').waitForDisplayed({ timeout: 10000 });
+    console.log('✓ On product details page');
 });
 
 When(/^the user clicks the Add to Favourites button$/, async () => {
-    await $('[data-test="add-to-favorites"]').click();
+    const favBtn = await $('[data-test="add-to-favorites"]');
+    await favBtn.scrollIntoView();
+    await favBtn.waitForClickable({ timeout: 5000 });
+    await favBtn.click();
+
+    console.log('✓ Add to Favorites button clicked');
+    await browser.pause(1000);
 });

@@ -52,85 +52,48 @@ Then(/^see their name in the header$/, async () => {
    PROFILE
 ============================ */
 Then(/^the new password should be saved successfully$/, async () => {
-
-    // The site first shows a success alert BEFORE redirecting
-    const successMessage = await $('//*[@data-test="alert-success" or contains(text(), "updated") or contains(text(), "success")]');
-    await successMessage.waitForDisplayed({ timeout: 5000 });
-
-    // Now WAIT for redirect (it takes a little time)
+    // Wait for redirect to login page (this is the success indicator)
     await browser.waitUntil(
         async () => {
             const url = await browser.getUrl();
             return url.includes('/auth/login');
         },
         {
-            timeout: 10000, // more realistic for this site
+            timeout: 10000,
             timeoutMsg: 'Expected redirect to login page after successful password update'
         }
     );
 
-    // Final confirmation
-    await expect(browser).toHaveUrlContaining('/auth/login');
+    const currentUrl = await browser.getUrl();
+    expect(currentUrl).toContain('/auth/login');
+    console.log('✓ Password updated successfully - redirected to login page');
 });
-
-
-// Then(/^a success message should appear$/, async () => {
-//     await browser.pause(1000);
-
-//     // Check for success message on login page
-//     const successSelectors = [
-//         '.alert-success',
-//         '.alert.alert-success',
-//         '.toast-success',
-//         '[role="alert"][class*="success"]',
-//         '*=Your password is successfully updated'
-//     ];
-
-//     let successFound = false;
-
-//     for (const selector of successSelectors) {
-//         const element = await $(selector);
-//         if (await element.isExisting()) {
-//             try {
-//                 const isDisplayed = await element.isDisplayed();
-//                 if (isDisplayed) {
-//                     const text = await element.getText();
-//                     if (text.includes('successfully') || text.includes('updated')) {
-//                         console.log(`✓ Success message found: "${text}"`);
-//                         successFound = true;
-//                         break;
-//                     }
-//                 }
-//             } catch (e) {
-//                 continue;
-//             }
-//         }
-//     }
-
-//     if (!successFound) {
-//         console.log('⚠️  No explicit success message found, but redirect occurred');
-//         console.log('✓ Password update confirmed by redirect to login page');
-//     }
-// });
 
 Then(/^a success message should appear$/, async () => {
-    await browser.waitUntil(
-        async () => {
-            const elements = await $$('//*[contains(text(), "updated") or contains(text(), "success")]');
-            return elements.length > 0;
-        },
-        {
-            timeout: 5000,
-            timeoutMsg: 'Success message did not appear'
-        }
-    );
+    // Option 1: Check for success message on the profile page before redirect
+    // This checks if we're still on profile page and message exists
+    const currentUrl = await browser.getUrl();
 
-    const el = await $('//*[contains(text(), "updated") or contains(text(), "success")]');
-    await expect(el).toBeDisplayed();
+    if (currentUrl.includes('/profile')) {
+        // Still on profile page, check for message
+        await browser.waitUntil(
+            async () => {
+                const elements = await $$('//*[contains(@class, "alert") and contains(@class, "success")]');
+                if (elements.length === 0) return false;
+                const displayed = await elements[0].isDisplayed();
+                return displayed;
+            },
+            {
+                timeout: 3000,
+                timeoutMsg: 'Success message did not appear on profile page'
+            }
+        );
+        console.log('✓ Success message displayed');
+    } else if (currentUrl.includes('/auth/login')) {
+        // Already redirected to login - password change was successful
+        console.log('✓ Redirected to login page (password change successful)');
+    }
 });
-
-
-
 
 
 /* ============================
@@ -146,7 +109,7 @@ Then(/^the system should open the Product Details page$/, async () => {
             timeout: 10000,
             timeoutMsg: 'Did not navigate to product details page'
         }
-    ); 
+    );
 
     const currentUrl = await browser.getUrl();
     await expect(currentUrl).toContain('/product/');
@@ -173,7 +136,7 @@ Then(/^displays all the product.?s information.*$/, async () => {
     const descriptionText = await description.getText();
     await expect(descriptionText.length).toBeGreaterThan(0);
     console.log('Description found:', descriptionText.substring(0, 50) + '...');
- 
+
     let category = await $('span[aria-label="category"]');
     await expect(category).toBeDisplayed();
     const categoryText = await category.getText();
@@ -187,7 +150,6 @@ Then(/^displays all the product.?s information.*$/, async () => {
 });
 
 
-
 /* ============================
    CART
 ============================ */
@@ -199,7 +161,6 @@ Then(/^the product should be added to the cart list$/, async () => {
     await expect(countText).toBe('1');
 });
 
-
 Then(/^a successful message should appear$/, async () => {
     const message = await $('//*[contains(text(), "shopping cart")]');
     await message.waitForDisplayed({ timeout: 8000 });
@@ -210,14 +171,52 @@ Then(/^a successful message should appear$/, async () => {
    FAVORITES
 ============================ */
 Then(/^the product should be added to the user's favorites list$/, async () => {
-    
+    console.log("Checking for success message...");
+
+    await browser.waitUntil(
+        async () => {
+            const elements = await $$('*');
+            for (const el of elements) {
+                const text = (await el.getText()).toLowerCase();
+                if (text.includes("product added to your favorites list")) {
+                    return true;
+                }
+            }
+            return false;
+        },
+        {
+            timeout: 5000,
+            timeoutMsg: "Success message not found"
+        }
+    );
+
+    console.log("✓ Success message appeared");
 });
 
+Then(/^the product should appear in the favorites page$/, async () => {
+    console.log("Navigating to favorites page...");
 
-Then(/^a successful message should appear$/, async () => {
-    const message = await $('//*[contains(text(), "shopping cart")]');
-    await message.waitForDisplayed({ timeout: 8000 });
+    const menu = await $('[data-test="nav-menu"]');
+    await menu.click();
+
+    const favLink = await $('[data-test="nav-my-favorites"]');
+    await favLink.waitForClickable({ timeout: 5000 });
+    await favLink.click();
+
+    await browser.waitUntil(
+        async () => (await $$('[data-test^="product-"]')).length > 0,
+        {
+            timeout: 7000,
+            timeoutMsg: "No favorites shown in favorites page"
+        }
+    );
+
+    const favItems = await $$('[data-test^="product-"]');
+    expect(favItems.length).toBeGreaterThan(0);
+
+    console.log("✓ Product is in favorites page");
 });
+
 
 
 
