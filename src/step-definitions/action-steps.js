@@ -329,3 +329,23 @@ When(/^the user clicks the Add to Favourites button$/, async () => {
     console.log('✓ Add to Favorites button clicked');
     await browser.pause(1000);
 });
+
+
+/* ============================
+   SEARCH
+============================ */
+Given(/^the user navigates to the Home page$/, async () => {
+    await browser.url('https://practicesoftwaretesting.com/');
+    await browser.pause(2000); // Allow page to load
+
+    // Verify we're on the home page
+    await expect(browser).toHaveUrl('https://practicesoftwaretesting.com/');
+});
+
+When(/^the user enters Claw Hammer in the search bar$/, async () => {
+    await $('[data-test="search-query"]').setValue('claw hammer');
+});
+
+When(/^clicks the Search button$/, async () => {
+    await $('[data-test="search-submit"]').click();
+});
