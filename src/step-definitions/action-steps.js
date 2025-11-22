@@ -115,3 +115,101 @@ When(/^the user updates their password$/, async () => {
 When(/^clicks the Change Password button$/, async () => {
     await $('[data-test="change-password-submit"]').click();
 });
+
+/* ============================
+    PRODUCTS
+============================ */
+Given(/^the user is on the Home page$/, async () => {
+    await browser.url('https://practicesoftwaretesting.com/');
+    await browser.pause(2000); // Allow page to load
+
+    // Verify we're on the home page
+    await expect(browser).toHaveUrl('https://practicesoftwaretesting.com/');
+});
+
+When(/^the user clicks on a specific product name or image$/, async () => {
+    // Wait for product cards
+    await browser.waitUntil(
+        async () => (await $$('[data-test^="product-"]')).length > 0,
+        { timeout: 10000, timeoutMsg: 'No products found' }
+    );
+
+    // Click the first product
+    const productCards = await $$('[data-test^="product-"]');
+    const firstProduct = productCards[0];
+
+    await firstProduct.scrollIntoView();
+    await firstProduct.waitForClickable({ timeout: 5000 });
+    await firstProduct.click();
+
+    // Wait for navigation
+    await browser.waitUntil(
+        async () => (await browser.getUrl()).includes('/product/'),
+        { timeout: 8000, timeoutMsg: 'Did not navigate to product details page' }
+    );
+});
+
+
+/* ============================
+   CART
+============================ */
+Given(/^the user is on a Product Details page$/, async () => {
+    await browser.url('https://practicesoftwaretesting.com/');
+
+    await browser.waitUntil(
+        async () => (await $$('[data-test^="product-"]')).length > 0,
+        { timeout: 10000, timeoutMsg: 'No products found on home page' }
+    );
+
+    const products = await $$('[data-test^="product-"]');
+
+    await products[0].scrollIntoView();
+    await products[0].click();
+
+    await browser.waitUntil(
+        async () => (await browser.getUrl()).includes('/product/'),
+        { timeout: 8000, timeoutMsg: 'Did not navigate to product detail page' }
+    );
+
+    await $('[data-test="product-name"]').waitForDisplayed({ timeout: 10000 });
+});
+
+
+When(/^the user clicks Add to cart button$/, async () => {
+    const cartBtn = await $('[data-test="add-to-cart"]');
+    await cartBtn.waitForClickable({ timeout: 5000 });
+    await cartBtn.click();
+});
+
+
+/* ============================
+   FAVORITES
+============================ */
+Given(/^the user is logged in$/, async () => {
+    await browser.url('https://practicesoftwaretesting.com/auth/login');
+});
+
+Given(/^is in the Product Details page$/, async () => {
+    await browser.url('https://practicesoftwaretesting.com/');
+
+    await browser.waitUntil(
+        async () => (await $$('[data-test^="product-"]')).length > 0,
+        { timeout: 10000, timeoutMsg: 'No products found on home page' }
+    );
+
+    const products = await $$('[data-test^="product-"]');
+
+    await products[0].scrollIntoView();
+    await products[0].click();
+
+    await browser.waitUntil(
+        async () => (await browser.getUrl()).includes('/product/'),
+        { timeout: 8000, timeoutMsg: 'Did not navigate to product detail page' }
+    );
+
+    await $('[data-test="product-name"]').waitForDisplayed({ timeout: 10000 });
+});
+
+When(/^the user clicks the Add to Favourites button$/, async () => {
+    await $('[data-test="add-to-favorites"]').click();
+});
