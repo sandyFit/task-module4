@@ -338,7 +338,7 @@ Given(/^the user navigates to the Home page$/, async () => {
     await browser.url('https://practicesoftwaretesting.com/');
     await browser.pause(2000); // Allow page to load
 
-    // Verify we're on the home page
+    // Verify user is on the home page
     await expect(browser).toHaveUrl('https://practicesoftwaretesting.com/');
 });
 
@@ -349,3 +349,25 @@ When(/^the user enters Claw Hammer in the search bar$/, async () => {
 When(/^clicks the Search button$/, async () => {
     await $('[data-test="search-submit"]').click();
 });
+
+/* ============================
+     LANGUAGE
+============================ */
+Given(/^the user starts on the Home page$/, async () => {
+    await browser.url('https://practicesoftwaretesting.com/');
+    await browser.pause(2000); // Allow page to load
+
+    // Verify user is on the home page
+    await expect(browser).toHaveUrl('https://practicesoftwaretesting.com/');
+});
+
+When(/^the user changes the site language to Spanish \(ES\)$/, async () => {
+    await $('[data-test="language-select"]').click();
+
+    const esOption = await $('a=ES');
+    await esOption.click();
+});
+
+
+
+

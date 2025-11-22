@@ -10,7 +10,8 @@ export const config = {
         //path.resolve('./src/features/**/product-details.feature'),
         //path.resolve('./src/features/**/cart-operations.feature')
         //path.resolve('./src/features/**/favorites.feature'),
-        path.resolve('./src/features/**/search.feature')
+        //path.resolve('./src/features/**/search.feature'),
+        path.resolve('./src/features/**/language.feature')
     ],
 
     cucumberOpts: {
