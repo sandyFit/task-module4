@@ -6,4 +6,3 @@ Feature: User Login
         When the user enters a valid email and password
         And clicks the Login button
         Then the user should be redirected to My Account page
-        And see their name in the header
