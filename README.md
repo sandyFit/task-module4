@@ -118,7 +118,7 @@ This helps maintain clean separation of **intent (Gherkin)** and **implementatio
 
 ---
 
-## 🧪 **Parallel Execution**
+## **Parallel Execution**
 
 WDIO is configured to run tests using:
 
@@ -131,7 +131,7 @@ This means **2 sessions across both Chrome and Firefox** can run simultaneously,
 
 ---
 
-## 📦 **Dependencies**
+## **Dependencies**
 
 Key packages used:
 
@@ -144,7 +144,7 @@ Key packages used:
 
 ---
 
-## 📝 License
+## License
 
 This project is part of the EPAM Testing Automation training program.
 
