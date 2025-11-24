@@ -19,7 +19,6 @@ Before(async function ({ pickle }) {
     // Set window size to desktop on first scenario (when browser exists)
     if (!accountCreated) {
         await browser.setWindowSize(1920, 1080);
-        console.log('🖥️ Browser window set to 1920x1080 (desktop)');
     }
 
     console.log(`\n🎬 Starting scenario: "${pickle.name}"`);

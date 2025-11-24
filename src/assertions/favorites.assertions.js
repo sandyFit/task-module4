@@ -87,9 +87,6 @@ Then(/^the product should appear in the favorites page$/, async () => {
             bodyText.toLowerCase().includes('empty')) {
             console.log('⚠️ Page shows "no favorites" message');
         }
-
-        await browser.saveScreenshot('./favorites-page-empty.png');
-        console.log('📸 Screenshot saved to favorites-page-empty.png');
     }
 
     expect(favItems.length).toBeGreaterThan(0);

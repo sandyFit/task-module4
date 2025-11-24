@@ -78,6 +78,4 @@ When(/^clicks the Change Password button$/, async () => {
     await btn.click();
     await browser.pause(1000);
 
-    const currentUrl = await browser.getUrl();
-
 });

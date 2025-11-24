@@ -16,7 +16,6 @@ Then(/^the new password should be saved successfully$/, async () => {
         }
     );
 
-    const finalUrl = await browser.getUrl();
 
     const newPassword = testCredentials.getNewPassword();
     testCredentials.updatePassword(newPassword);

@@ -28,11 +28,11 @@ export const config = {
     // ====================
     // Capabilities
     // ====================
-    maxInstances: 1, // parallel sessions
-    maxInstancesPerCapability: 1,
+    maxInstances: 2, // parallel sessions
+    maxInstancesPerCapability: 2,
     capabilities: [
         {
-            maxInstances: 1,
+            maxInstances: 2,
             browserName: 'chrome',
             'goog:chromeOptions': { args: ['--headless', '--disable-gpu'] }
         },
