@@ -19,7 +19,6 @@ Then(/^the new password should be saved successfully$/, async () => {
 
     const newPassword = testCredentials.getNewPassword();
     testCredentials.updatePassword(newPassword);
-    console.log("🔄 Password updated in test credentials to:", newPassword);
 });
 
 Then(/^a success message should appear$/, async () => {

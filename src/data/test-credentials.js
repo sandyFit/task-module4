@@ -53,13 +53,11 @@ export const testCredentials = {
     resetSignupStatus() {
         signupCompleted = false;
         lastGeneratedPassword = null;
-        console.log('🔄 Signup status and password cache reset');
     },
 
     // ---------- PASSWORD MANAGEMENT ----------
     getCurrentPassword() {
         const password = existingUser?.password || readStoredPassword();
-        console.log('🔐 Getting current password:', password);
         return password;
     },
 
@@ -67,14 +65,12 @@ export const testCredentials = {
         // Strong password that meets typical requirements:
         const randomPart = Math.random().toString(36).slice(2, 10); // 8 chars
         const password = `New${randomPart}@1A`;
-        console.log('🆕 Generated new password:', password);
         return password;
     },
 
     getNewPassword() {
         if (!lastGeneratedPassword) {
             lastGeneratedPassword = this.generateNewPassword();
-            console.log('💾 Cached new password for this password change session');
         } else {
             console.log('♻️ Reusing cached new password');
         }
@@ -86,28 +82,21 @@ export const testCredentials = {
             console.log("⚠️ Cannot update password: No existingUser stored!");
             return;
         }
-
-        console.log(`🔄 Updating stored password from "${existingUser.password}" → "${newPassword}"`);
         existingUser.password = newPassword;
 
         // Reset cache
         lastGeneratedPassword = null;
-        console.log('✅ Password updated and cache cleared for next change');
     },
 
     // Force reset password generation (useful for test cleanup)
     resetPasswordCache() {
         lastGeneratedPassword = null;
-        console.log('🧹 Password generation cache cleared');
     },
 
     // ---------- LOGGING ----------
     logCredentials() {
         if (existingUser) {
-            console.log('📧 Current test user:', existingUser.email);
-            console.log('🔑 Current password:', existingUser.password);
             console.log('📊 Signup completed:', signupCompleted);
-            console.log('💾 Cached new password:', lastGeneratedPassword || 'none');
         } else {
             console.log('📧 No test user created yet');
         }

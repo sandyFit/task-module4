@@ -43,9 +43,6 @@ When(/^the user updates their password$/, async () => {
     const currentPwd = testCredentials.getCurrentPassword();
     const newPwd = testCredentials.getNewPassword();
 
-    console.log("🔐 Password Change Details:");
-    console.log("  📥 Current password:", currentPwd);
-    console.log("  📤 New password:", newPwd);
 
     await fillPasswordFieldWithAngular('[data-test="current-password"]', currentPwd, 'Current password');
     await fillPasswordFieldWithAngular('[data-test="new-password"]', newPwd, 'New password');
@@ -63,10 +60,6 @@ When(/^clicks the Change Password button$/, async () => {
 
     const isEnabled = await btn.isEnabled();
     const buttonText = await btn.getText();
-
-    console.log("🖱️ Button Details:");
-    console.log("  Text:", buttonText);
-    console.log("  Enabled:", isEnabled);
 
     if (!isEnabled) {
         await browser.saveScreenshot('./button-disabled.png');

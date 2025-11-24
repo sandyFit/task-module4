@@ -9,7 +9,6 @@ Then(/^the product should be added to the user's favorites list$/, async () => {
                 if (text.includes("product added to your favorites") ||
                     text.includes("added to favorites") ||
                     text.includes("added to favourite")) {
-                    console.log('✅ Found success message:', text.substring(0, 100));
                     return true;
                 }
             } catch (e) {
@@ -42,7 +41,6 @@ Then(/^the product should appear in the favorites page$/, async () => {
     await favLink.waitForDisplayed({ timeout: 5000 });
     await favLink.waitForClickable({ timeout: 5000 });
 
-    console.log('🖱️ Clicking My Favorites link...');
     await favLink.click();
 
     await browser.waitUntil(
@@ -71,10 +69,9 @@ Then(/^the product should appear in the favorites page$/, async () => {
     for (const selector of possibleSelectors) {
         favItems = await $$(selector);
         if (favItems.length > 0) {
-            console.log(`✅ Found ${favItems.length} items with selector: ${selector}`);
             break;
         } else {
-            console.log(`⚠️ No items found with selector: ${selector}`);
+            console.log(`⚠️ No items found`);
         }
     }
 
@@ -85,10 +82,8 @@ Then(/^the product should appear in the favorites page$/, async () => {
         if (bodyText.toLowerCase().includes('no favorites') ||
             bodyText.toLowerCase().includes('no favourites') ||
             bodyText.toLowerCase().includes('empty')) {
-            console.log('⚠️ Page shows "no favorites" message');
         }
     }
 
     expect(favItems.length).toBeGreaterThan(0);
-    console.log(`✅ Product appears in favorites page (${favItems.length} items found)`);
 });

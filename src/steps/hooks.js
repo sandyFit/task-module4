@@ -10,9 +10,7 @@ BeforeAll(async function () {
     console.log('==============================================');
     console.log('SETTING UP TEST SUITE');
     console.log('==============================================');
-    testCredentials.logCredentials();
-    // Note: Browser is not available in BeforeAll
-    // Window size will be set in Before hook
+
 });
 
 Before(async function ({ pickle }) {
@@ -37,7 +35,6 @@ Before(async function ({ pickle }) {
         console.log("🚀 Creating test account...");
         try {
             const creds = testCredentials.getNewUserCredentials();
-            console.log(`📧 Email: ${creds.email}`);
 
             await signupNewUser(creds);
             await loginUser(creds.email, creds.password);

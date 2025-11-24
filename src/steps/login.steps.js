@@ -21,10 +21,6 @@ When(/^the user enters a valid email and password$/, async () => {
     const email = existingUser.email;
     const password = testCredentials.getCurrentPassword(); 
 
-    console.log('📧 Logging in with:');
-    console.log('  Email:', email);
-    console.log('  Password:', password);
-
     await fill('[data-test="email"]', email);
     await fill('[data-test="password"]', password);
 

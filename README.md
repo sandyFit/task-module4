@@ -31,19 +31,26 @@ Therefore, only **Chrome** and **Firefox** were configured — both in **headles
 ## **Project Structure**
 
 ```
-src/
- ├── features/          # .feature files (Gherkin)
+src/ 
+ ├── assertions/            # Custom assertions
+ │     ├── signup.assertions.js
+ │     ├── login.assertions.js
+ │     └── ...
+ ├── config                 # Main WDIO configuration
+ │     └── wdio.conf.js 
+ ├── data/                  # Test data
+ ├── helpers/               # Reusable helper functions
+ ├── features/              # .feature files (Gherkin)
  │     ├── signup.feature
  │     ├── login.feature
  │     └── ...
- ├── steps/             # Step definitions
- ├── assertions/        # Custom assertions
- ├── hooks/             # WDIO hooks (setup, before/after scenarios)
- ├── data/              # Test data
- └── helpers/           # Reusable helper functions
-wdio.conf.js            # Main WDIO configuration
+ ├── steps/                 # Step definitions
+ │     ├── signup.steps.js
+ │     ├── login.steps.js
+ │     ├── hooks.js
+ │     └── ...
+           
 ```
-
 ---
 
 ## **Running the Tests**
