@@ -1,35 +1,67 @@
-import { Then } from '@wdio/cucumber-framework';
+import * as chai from 'chai';
 
-Then(/^the search results should display only Claw Hammer products$/, async () => {
-    const searchCaption = await $('[data-test="search-caption"]');
-    await searchCaption.waitForDisplayed({ timeout: 10000 });
+const assert = chai.assert;
+const expect = chai.expect;
+chai.should();
 
-    const caption = (await searchCaption.getText()).toLowerCase();
-    expect(caption).toContain('claw hammer');
+/* ------------------------------------------------------
+   ASSERT — verify search caption matches the query
+------------------------------------------------------ */
+export async function assertSearchCaptionShows(query) {
+    const captionEl = await $('[data-test="search-caption"]');
+    await captionEl.waitForDisplayed({ timeout: 10000 });
 
+    const caption = (await captionEl.getText()).toLowerCase();
+
+    assert.include(
+        caption,
+        query.toLowerCase(),
+        `ASSERT: Expected search caption to include "${query}", but got "${caption}"`
+    );
+}
+
+/* ------------------------------------------------------
+   EXPECT — verify product card names match the query
+------------------------------------------------------ */
+export async function expectAllSearchResultsMatch(query) {
     const resultsContainer = await $('[data-test="search_completed"]');
     await resultsContainer.waitForDisplayed({ timeout: 10000 });
 
-    // Wait for all product cards to render
-    await browser.pause(1000);
+    const cards = await resultsContainer.$$('.card');
 
-    // Select each PRODUCT CARD
-    const productCards = await resultsContainer.$$('.card');
+    expect(cards.length).to.be.greaterThan(
+        0,
+        "EXPECT: Expected at least 1 search result, but got none"
+    );
 
-    expect(productCards.length).toBeGreaterThan(0);
-
-    let validCount = 0;
-    for (let i = 0; i < productCards.length; i++) {
-        const card = productCards[i];
-
+    for (const card of cards) {
         await card.waitForDisplayed({ timeout: 5000 });
 
         const nameEl = await card.$('[data-test="product-name"]');
-        await nameEl.waitForDisplayed({ timeout: 5000 });
-
         const name = (await nameEl.getText()).toLowerCase();
 
-        expect(name).toContain('claw hammer');
-        validCount++;
+        expect(name).to.contain(
+            query.toLowerCase(),
+            `EXPECT: Product name "${name}" does not include "${query}"`
+        );
     }
-});
+}
+
+/* ------------------------------------------------------
+   SHOULD — verify all product names contain the query
+------------------------------------------------------ */
+export async function shouldEachProductNameContain(query) {
+    const cards = await $$('.card');
+
+    cards.length.should.be.above(0);
+
+    for (const card of cards) {
+        const nameEl = await card.$('[data-test="product-name"]');
+        const name = (await nameEl.getText()).toLowerCase();
+
+        name.should.contain(
+            query.toLowerCase(),
+            `SHOULD: Product name "${name}" should contain "${query}"`
+        );
+    }
+}

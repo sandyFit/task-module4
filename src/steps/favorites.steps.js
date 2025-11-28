@@ -1,6 +1,12 @@
-import { Given, When } from '@wdio/cucumber-framework';
+import { Given, When, Then } from '@wdio/cucumber-framework';
 import { navigateToProductDetails } from '../helpers/navigation.js';
 import { testCredentials } from '../data/test-credentials.js';
+import {
+    assertFavoriteSuccessMessage,
+    expectFavoritesListNotEmpty,
+    shouldBeOnFavoritesPage
+} from '../assertions/favorites.assertions.js';
+
 
 Given(/^the user is logged in$/, async () => {
     console.log('User already logged in via Before hook');
@@ -29,4 +35,14 @@ When(/^the user clicks the Add to Favourites button$/, async () => {
 
     // Wait for the action to process
     await browser.pause(1500);
+});
+
+Then(/^the product should be added to the user's favorites list$/, async () => {
+    await assertFavoriteSuccessMessage();
+});
+
+
+Then(/^the product should appear in the favorites page$/, async () => {
+    await shouldBeOnFavoritesPage();
+    await expectFavoritesListNotEmpty();
 });

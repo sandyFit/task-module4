@@ -1,17 +1,25 @@
 export async function navigateToHome() {
-    await browser.url('https://practicesoftwaretesting.com/');
-    await browser.pause(2000);
-    await expect(browser).toHaveUrl('https://practicesoftwaretesting.com/');
+    await browser.url('/');
+
+    await browser.waitUntil(
+        async () => (await browser.getUrl()).includes('/'),
+        { timeout: 5000, timeoutMsg: 'Home page did not load' }
+    );
+
+    const url = await browser.getUrl();
+    const path = new URL(url).pathname;
+
+    expect(path).toBe('/');
 }
 
 export async function navigateToLogin() {
-    await browser.url('https://practicesoftwaretesting.com/auth/login');
+    await browser.url('/auth/login');
     await $('[data-test="login-submit"]').waitForDisplayed({ timeout: 5000 });
 }
 
 
 export async function navigateToProductDetails() {
-    await browser.url('https://practicesoftwaretesting.com/');
+    await browser.url('/');
 
     await browser.waitUntil(
         async () => (await $$('[data-test^="product-"]')).length > 0,

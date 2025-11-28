@@ -1,5 +1,10 @@
-import { Given, When } from '@wdio/cucumber-framework';
+import { Given, When, Then } from '@wdio/cucumber-framework';
 import { navigateToHome } from '../helpers/navigation.js';
+import {
+    assertSearchCaptionShows,
+    expectAllSearchResultsMatch,
+    shouldEachProductNameContain
+} from '../assertions/search.assertions.js';
 
 Given(/^the user navigates to the Home page$/, async () => {
     await navigateToHome();
@@ -55,4 +60,12 @@ When(/^clicks the Search button$/, async () => {
     await searchButton.click();
 
     await browser.pause(1000);
+});
+
+Then(/^the search results should display only Claw Hammer products$/, async () => {
+    const query = 'claw hammer';
+
+    await assertSearchCaptionShows(query);
+    await expectAllSearchResultsMatch(query);
+    await shouldEachProductNameContain(query);
 });
