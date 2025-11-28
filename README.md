@@ -131,16 +131,27 @@ This means **2 sessions across both Chrome and Firefox** can run simultaneously,
 
 ---
 
+## Chai Integration (Module 5)
+- Added Chai for BDD and TDD style assertions
+- Implemented assert, expect, and should interfaces
+- Added new signup step using Chai
+
+
 ## **Dependencies**
 
 Key packages used:
 
-* `@wdio/cli`
-* `@wdio/local-runner`
-* `@wdio/cucumber-framework`
-* `@wdio/spec-reporter`
-* `@wdio/chromedriver-service`
-* `@wdio/firefox-profile-service`
+## Dependencies
+
+These are the key packages used in this project:
+
+- `@wdio/cli` – WebdriverIO command line interface for running tests.
+- `@wdio/local-runner` – Allows tests to run locally on your machine.
+- `@wdio/cucumber-framework` – Integrates Cucumber with WebdriverIO for BDD-style tests.
+- `@wdio/spec-reporter` – Provides readable test output in the terminal.
+- `@wdio/chromedriver-service` – Manages ChromeDriver for running tests in Chrome.
+- `@wdio/firefox-profile-service` – Manages Firefox profiles for test execution.
+- `chai` – Assertion library for validating test results.
 
 ---
 
