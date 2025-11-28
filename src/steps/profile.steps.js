@@ -1,7 +1,11 @@
-import { Given, When } from '@wdio/cucumber-framework';
+import { Given, When, Then } from '@wdio/cucumber-framework';
 import { testCredentials } from '../data/test-credentials.js';
 import { waitForAngular, fillPasswordFieldWithAngular } from '../helpers/form.js'
-
+import {
+    assertRedirectAfterPasswordChange,
+    expectRedirectAfterPasswordChange,
+    shouldRedirectAfterPasswordChange
+} from '../assertions/profile.assertions.js';
 
 Given(/^the user is logged into their account$/, async () => {
     console.log('User already logged in via Before hook');
@@ -71,4 +75,30 @@ When(/^clicks the Change Password button$/, async () => {
     await btn.click();
     await browser.pause(1000);
 
+});
+
+Then(/^the new password should be saved successfully$/, async () => {
+    await browser.pause(1000);
+
+    await browser.waitUntil(
+        async () => {
+            const url = await browser.getUrl();
+            return url.includes('/auth/login');
+        },
+        {
+            timeout: 6000,
+            timeoutMsg: 'Expected redirect to login page after password change',
+            interval: 1000
+        }
+    );
+
+
+    const newPassword = testCredentials.getNewPassword();
+    testCredentials.updatePassword(newPassword);
+});
+
+Then(/^a success message should appear$/, async () => {
+    await assertRedirectAfterPasswordChange();   
+    await expectRedirectAfterPasswordChange();   
+    await shouldRedirectAfterPasswordChange();   
 });

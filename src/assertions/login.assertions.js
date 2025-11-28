@@ -1,11 +1,12 @@
-import { Then } from '@wdio/cucumber-framework';
+
 import * as chai from 'chai';
 
 const assert = chai.assert;
 const expect = chai.expect;
 chai.should();
 
-Then(/^the user should be redirected to My Account page$/, async () => {
+
+export async function assertRedirectToAccount() {
     const redirect = await browser.waitUntil(
         async () => {
             const url = await browser.getUrl();
@@ -15,15 +16,20 @@ Then(/^the user should be redirected to My Account page$/, async () => {
             timeout: 10000,
             interval: 1000,
         }
-
     );
 
     assert.isTrue(
         redirect,
         "ASSERT: Expected redirect to /account page after login"
-    )
+    );
+}
 
+export async function expectUrlContainsAccount() {
     const finalUrl = await browser.getUrl();
-
     expect(finalUrl).to.contain('/account');
-});
+}
+
+export async function shouldUrlContainAccount() {
+    const url = await browser.getUrl();
+    url.should.contain('/account');   
+}

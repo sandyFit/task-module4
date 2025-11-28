@@ -1,26 +1,50 @@
-import { Then } from '@wdio/cucumber-framework';
+import * as chai from 'chai';
+const assert = chai.assert;
+const expect = chai.expect;
+chai.should();
 
-Then(/^the system should open the Product Details page$/, async () => {
+export async function assertProductDetailsPageUrl() {
     const url = await browser.getUrl();
-    expect(url).toContain('/product/');
-});
+    expect(url).to.contain('/product/');
+}
 
+export async function shouldProductUrlContainProduct() {
+    const url = await browser.getUrl();
+    url.should.contain('/product/');
+}
 
-Then(/^displays all the product.?s information.*$/, async () => {
+export async function assertProductHasName() {
     const name = await $('[data-test="product-name"]');
     await name.waitForDisplayed();
-    expect((await name.getText()).length).toBeGreaterThan(0);
+    const text = await name.getText();
+    assert.isAbove(text.length, 0, "Product name should not be empty");
+}
 
+export async function assertProductHasPrice() {
     const price = await $('[data-test="unit-price"]');
-    expect(await price.isDisplayed()).toBe(true);
+    assert.isTrue(await price.isDisplayed(), "Price is not displayed");
+}
 
-    const description = await $('[data-test="product-description"]');
-    expect(await description.isDisplayed()).toBe(true);
-    expect((await description.getText()).length).toBeGreaterThan(0);
+export async function assertProductHasDescription() {
+    const desc = await $('[data-test="product-description"]');
+    assert.isTrue(await desc.isDisplayed(), "Description is not visible");
+}
 
+export async function productShouldHaveDescription() {
+    const desc = await $('[data-test="product-description"]');
+    await desc.waitForDisplayed();
+
+    const text = await desc.getText();
+    text.should.have.length.of.at.least(1);
+}
+
+
+export async function assertProductHasCategory() {
     const category = await $('span[aria-label="category"]');
-    expect(await category.isDisplayed()).toBe(true);
+    expect(await category.isDisplayed()).to.be.true;
+}
 
+export async function assertProductHasCO2Rating() {
     const co2 = await $('[data-test="co2-rating-badge"]');
-    expect(await co2.isDisplayed()).toBe(true);
-});
+    expect(await co2.isDisplayed()).to.be.true;
+}

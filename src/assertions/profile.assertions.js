@@ -1,27 +1,25 @@
-import { Then } from '@wdio/cucumber-framework';
-import { testCredentials } from '../data/test-credentials.js';
+import * as chai from 'chai';
+const assert = chai.assert;
+const expect = chai.expect;
+chai.should();
 
-Then(/^the new password should be saved successfully$/, async () => {
-    await browser.pause(1000);
-
-    await browser.waitUntil(
-        async () => {
-            const url = await browser.getUrl();
-            return url.includes('/auth/login');
-        },
-        {
-            timeout: 6000,
-            timeoutMsg: 'Expected redirect to login page after password change',
-            interval: 1000
-        }
-    );
-
-
-    const newPassword = testCredentials.getNewPassword();
-    testCredentials.updatePassword(newPassword);
-});
-
-Then(/^a success message should appear$/, async () => {
+export async function assertRedirectAfterPasswordChange() {
     const url = await browser.getUrl();
-    expect(url).toContain('/auth/login');
-});
+    assert.isTrue(
+        url.includes('/auth/login'),
+        "ASSERT: Expected redirect to /auth/login after password change"
+    );
+}
+
+export async function expectRedirectAfterPasswordChange() {
+    const url = await browser.getUrl();
+    expect(url).to.contain('/auth/login');
+}
+
+
+export async function shouldRedirectAfterPasswordChange() {
+    const url = await browser.getUrl();
+    url.should.contain('/auth/login');
+}
+
+

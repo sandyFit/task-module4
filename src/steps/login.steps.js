@@ -1,6 +1,11 @@
-import { Given, When } from '@wdio/cucumber-framework';
+import { Given, When, Then } from '@wdio/cucumber-framework';
 import { testCredentials } from '../data/test-credentials.js';
 import { fill } from '../helpers/form.js';
+import {
+    assertRedirectToAccount,
+    expectUrlContainsAccount,
+    shouldUrlContainAccount
+} from '../assertions/login.assertions.js';
 
 Given(/^the user has a registered account$/, async () => {
     console.log('Using pre-created test account');
@@ -8,7 +13,7 @@ Given(/^the user has a registered account$/, async () => {
 });
 
 Given(/^is on the Login page$/, async () => {
-    await browser.url('https://practicesoftwaretesting.com/auth/login');
+    await browser.url('/auth/login');
 });
 
 When(/^the user enters a valid email and password$/, async () => {
@@ -32,3 +37,9 @@ When(/^clicks the Login button$/, async () => {
 
     await loginButton.click();
 });
+
+Then(/^the user should be redirected to My Account page$/, async () => { 
+    await assertRedirectToAccount();
+    await expectUrlContainsAccount();
+    await shouldUrlContainAccount();
+})
