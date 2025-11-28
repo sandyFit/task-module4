@@ -25,44 +25,42 @@ export async function assertFavoriteSuccessMessage() {
         return false;
     }, {
         timeout: 8000,
-        timeoutMsg: 'ASSERT: Expected a success message but none appeared'
+        interval: 500,
+        timeoutMsg: 'ASSERT: Expected favorite success message but none appeared'
     });
 
     assert.isTrue(successFound, "ASSERT: Favorite success message was not found");
 }
 
 /* ------------------------------------------------------
-   EXPECT — verify at least one favorite item appears
------------------------------------------------------- */
-export async function expectFavoritesListNotEmpty() {
-    const possibleSelectors = [
-        '[data-test^="product-"]',
-        '.card',
-        '[data-test="product"]',
-        '.product-card',
-        '[class*="product"]'
-    ];
-
-    let favItems = [];
-    for (const selector of possibleSelectors) {
-        favItems = await $$(selector);
-        if (favItems.length > 0) break;
-    }
-
-    expect(favItems.length).to.be.greaterThan(
-        0,
-        "EXPECT: Favorites list should contain at least one product"
-    );
-}
-
-/* ------------------------------------------------------
-   SHOULD — verify URL contains the favorites path
+   SHOULD — verify URL contains favorites path
 ------------------------------------------------------ */
 export async function shouldBeOnFavoritesPage() {
     const url = await browser.getUrl();
-    url.should.contain.oneOf(
-        ['/favorites', '/favourites'],
-        "SHOULD: URL should contain favorites page path"
+    const isOnFavorites = ['/favorites', '/favourites'].some(path => url.includes(path));
+    assert.isTrue(isOnFavorites, "SHOULD: URL should contain favorites page path");
+}
+
+/* ------------------------------------------------------
+   EXPECT — verify favorites list is not empty
+------------------------------------------------------ */
+export async function expectFavoritesListNotEmpty() {
+    // Wait until at least one favorite card appears
+    const favItems = await browser.waitUntil(
+        async () => {
+            const items = await $$('[data-test^="favorite-"]');
+            return items.length > 0 ? items : false; // return items array if found
+        },
+        {
+            timeout: 10000,
+            interval: 500,
+            timeoutMsg: 'No favorite products found on the page after waiting'
+        }
     );
+
+    console.log('Number of favorite items found:', favItems.length);
+
+    expect(favItems.length, "EXPECT: Favorites list should contain at least one product")
+        .to.be.greaterThan(0);
 }
 

@@ -13,14 +13,14 @@ export const config = {
     // Test Files
     // ==================
     specs: [
-        //path.resolve('./src/features/**/signup.feature'),
-        // path.resolve('./src/features/**/login.feature'),
-        // path.resolve('./src/features/**/profile.feature'),
-        // path.resolve('./src/features/**/product-details.feature'),
-        // path.resolve('./src/features/**/cart-operations.feature'),
+        path.resolve('./src/features/**/signup.feature'),
+        path.resolve('./src/features/**/login.feature'),
+        path.resolve('./src/features/**/profile.feature'),
+        path.resolve('./src/features/**/product-details.feature'),
+        path.resolve('./src/features/**/cart-operations.feature'),
         path.resolve('./src/features/**/favorites.feature'),
-        // path.resolve('./src/features/**/search.feature'),
-        // path.resolve('./src/features/**/language.feature')
+        path.resolve('./src/features/**/search.feature'),
+        path.resolve('./src/features/**/language.feature')
     ],
 
     exclude: [],
@@ -29,19 +29,19 @@ export const config = {
     // ====================
     // Capabilities
     // ====================
-    maxInstances: 1, // parallel sessions
-    maxInstancesPerCapability: 1,
+    maxInstances: 2, // parallel sessions
+    maxInstancesPerCapability: 2,
     capabilities: [
         {
-            maxInstances: 1,
+            maxInstances: 2,
             browserName: 'chrome',
-            // 'goog:chromeOptions': { args: ['--headless', '--disable-gpu'] }
+            'goog:chromeOptions': { args: ['--headless', '--disable-gpu'] }
         },
-        // {
-        //     maxInstances: 2,
-        //     browserName: 'firefox',
-        //     'moz:firefoxOptions': { args: ['-headless'] }
-        // }
+        {
+            maxInstances: 2,
+            browserName: 'firefox',
+            'moz:firefoxOptions': { args: ['-headless'] }
+        }
     ],
 
     //
