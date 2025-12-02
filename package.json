@@ -10,5 +10,9 @@
   },
   "scripts": {
     "wdio": "wdio run src/config/wdio.conf.js"
+  },
+  "dependencies": {
+    "pino": "^10.1.0",
+    "pino-pretty": "^13.1.3"
   }
 }

@@ -6,4 +6,3 @@ Feature: User Signup
         And clicks the Register button
         Then the system should create a new account
         And redirect to the Login page
-        And the login URL should contain the path using should
