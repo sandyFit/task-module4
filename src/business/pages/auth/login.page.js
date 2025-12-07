@@ -40,8 +40,10 @@ export class LoginPage extends BasePage {
      * Verify on login page
      */
     async verifyOnLoginPage() {
-        await waitForUrlToContain('/auth/login');
+        logger.info('Verifying the Login page URL');
+        await this.waitForUrlToContain('/auth/login');
     }
+
 
     /**
      * Check if on login page
