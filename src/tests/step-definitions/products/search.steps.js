@@ -1,7 +1,7 @@
 import { Given, When, Then } from '@wdio/cucumber-framework';
 import { HomePage } from '../../../business/pages/home/home.page.js';
 import { logger } from '../../../core/logger/logger.js';
-import { assert } from 'chai';
+import { assertMinimumElements, assertElementCount } from '../../assertions/assertions.js';
 
 const homePage = new HomePage();
 
@@ -20,16 +20,16 @@ When(/^clicks the Search button$/, async () => {
 });
 
 Then(/^the search results should display only Claw Hammer products$/, async () => {
-    // Get only visible products
     const allProducts = await homePage.productCards;
     const products = [];
+
     for (const product of allProducts) {
-        if (await product.isDisplayed().catch(() => false)) {
+        if (await homePage.isElementDisplayed(product)) {
             products.push(product);
         }
     }
 
-    assert.isAbove(products.length, 0, 'No products are visible after search');
+    assertMinimumElements(products, 1, 'visible products after search');
 
     logger.info(`Validating ${products.length} visible products contain "claw hammer"`);
 
@@ -64,8 +64,7 @@ Then(/^the search results should display only Claw Hammer products$/, async () =
         logger.info(`Non-matching products found: ${nonMatches.join(', ')}`);
     }
 
-    // Validate exactly 3 Claw Hammer products (matches manual observation)
-    assert.equal(matchedCount, 3, `Expected 3 "Claw Hammer" products, but found ${matchedCount}`);
+    assertElementCount([...Array(matchedCount)], 3, '"Claw Hammer" products');
 
     logger.info(`✅ Test passed: All ${matchedCount} visible products contain "claw hammer"`);
 });

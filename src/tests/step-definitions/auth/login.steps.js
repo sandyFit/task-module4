@@ -1,6 +1,5 @@
 import { Given, When, Then } from '@wdio/cucumber-framework';
 import { LoginPage } from '../../../business/pages/auth/login.page.js';
-import { verifyRedirectToAccount } from '../../assertions/assertions.js'
 import { logger } from '../../../core/logger/logger.js';
 import { getExistingUser } from '../../../business/data/user-factory.js';
 import { expect } from 'chai';
@@ -39,9 +38,8 @@ When(/^clicks the Login button$/, async () => {
     logger.info('Login button click handled inside login() method');
 });
 
-/**
- * Verify redirection to account page
- */
 Then(/^the user should be redirected to My Account page$/, async () => {
-    await verifyRedirectToAccount()
+    await loginPage.waitForUrlToContain('/account', 10000);
+    const url = await loginPage.getCurrentUrl();
+    expect(url).to.include('/account');
 });

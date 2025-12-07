@@ -45,7 +45,7 @@ export class HomePage extends BasePage {
     async searchProduct(query) {
         logger.info(`Searching product: ${query}`);
 
-        const filtersVisible = await this.filtersButton.isDisplayed().catch(() => false);
+        const filtersVisible = await this.isElementDisplayed(this.filtersButton);
         if (filtersVisible) {
             await this.clickElement(this.filtersButton, 'Filters Button');
         }
@@ -55,11 +55,10 @@ export class HomePage extends BasePage {
 
         await this.pause(500, 'allowing DOM to stabilize after setting input value');
 
-        // Direct click with fallback - bypass visibility checks
         const searchBtn = await this.searchButton;
 
         await searchBtn.waitForExist({ timeout: 5000 });
-        await searchBtn.scrollIntoView();
+        await this.scrollToElement(searchBtn, 'Search Button');
         await this.pause(300, 'allowing search button to be ready after scroll');
 
         try {
@@ -80,7 +79,6 @@ export class HomePage extends BasePage {
         const products = await this.getProducts();
         logger.info(`Found ${products.length} products after search`);
 
-        // Wait for first product to be ready 
         if (products.length > 0) {
             try {
                 await products[0].waitForDisplayed({ timeout: 5000 });
@@ -98,9 +96,7 @@ export class HomePage extends BasePage {
     async getProductName(productElement) {
         const nameElement = await productElement.$(this.selectors.productName);
 
-        const exists = await nameElement.waitForExist({
-            timeout: 1000
-        }).catch(() => false);
+        const exists = await this.waitForElementExist(nameElement, 1000);
 
         if (!exists) {
             return '';
@@ -133,7 +129,6 @@ export class HomePage extends BasePage {
         const productCards = await this.productCards;
         logger.info(`Found ${productCards.length} product cards`);
 
-        // Search and click immediately when found
         for (let i = 0; i < productCards.length; i++) {
             const card = productCards[i];
 
@@ -141,13 +136,12 @@ export class HomePage extends BasePage {
                 await this.scrollToElement(card, `Product Card ${i}`);
                 await this.pause(100, 'allowing DOM to stabilize after scrolling');
 
-                // Find the title element within THIS card 
                 const titleElement = await card.$('[data-test="product-name"]');
 
                 const exists = await this.waitForElementExist(titleElement, 500);
 
                 if (!exists) {
-                    continue; 
+                    continue;
                 }
 
                 const title = await titleElement.getText();

@@ -1,6 +1,5 @@
 import { AccountPage } from '../account/account.page.js';
 import { logger } from '../../../core/logger/logger.js';
-import { waitForElementsCount } from '../../../core/browser/wait-helper.js';  // Add this import
 
 export class FavoritesPage extends AccountPage {
 
@@ -10,9 +9,16 @@ export class FavoritesPage extends AccountPage {
     };
 
     // === GETTERS ===
-    get favoriteProductCards() { return $$(this.selectors.favoriteProductCard); }
-    get removeFavoriteButtons() { return $$(this.selectors.removeFavoriteButton); }
+    get favoriteProductCards() {
+        return $$(this.selectors.favoriteProductCard);
+    }
 
+    get removeFavoriteButtons() {
+        return $$(this.selectors.removeFavoriteButton);
+    }
+
+
+    // === DATA GETTERS ===
     async getFavoriteProducts() {
         logger.info('Getting list of favorite products');
         const products = await this.favoriteProductCards;
@@ -20,53 +26,48 @@ export class FavoritesPage extends AccountPage {
         return products;
     }
 
-    // === ACTIONS ===
-
-    async waitForLoaded() {
-        await waitForElementsCount(() => this.favoriteProductCards, 1, 10000);
-    }
-
-    async open() {
-        logger.info('Opening Favorites page');
-
-        await this.navigateTo('/account/favorites');
-
-        // Angular route finished loading
-        await this.waitForPageLoad();
-        await this.waitForLoaded();
-    }
-
-    async isOnFavoritesPage() {
-        return await super.isOnFavoritesSection();
-    }
-
-
-    async isFavoritesEmpty() {
-        try {
-            const isEmpty = await this.emptyFavoritesMessage.isDisplayed();
-            logger.info(`Favorites list is empty: ${isEmpty}`);
-            return isEmpty;
-        } catch {
-            return false;
-        }
-    }
-
-
     async getFavoriteProductsCount() {
         const products = await this.getFavoriteProducts();
         return products.length;
     }
 
+    // === LOADERS ===
+    async waitForLoaded() {
+        logger.info('Waiting for Favorites page to load');
 
-    async removeFavoriteByIndex(index) {
-        logger.info(`Removing favorite product at index: ${index}`);
-        const removeButtons = await this.removeFavoriteButtons;
+        await this.waitForUrlToContain('/favorites', 10000);
 
-        if (removeButtons.length > index) {
-            await this.clickElement(removeButtons[index], `Remove Favorite button ${index}`);
-            await this.pause(1000, 'waiting for removal animation to complete');
-        } else {
-            throw new Error(`No favorite product found at index ${index}`);
+        const loaded = await browser.waitUntil(
+            async () => {
+                const products = await this.favoriteProductCards;
+                return products.length > 0 && await this.isElementDisplayed(products[0]);
+            },
+            {
+                timeout: 10000,
+                timeoutMsg: 'Favorites page did not load favorite products in time'
+            }
+        );
+
+        if (loaded) {
+            logger.info('✅ Favorites page loaded with products');
         }
     }
+
+
+
+    // === NAVIGATION ===
+    async open() {
+        logger.info('Opening Favorites page');
+
+        await this.navigateTo('/account/favorites');
+        await this.waitForPageLoad();
+        await this.waitForLoaded();
+    }
+
+    // === CHECKERS ===
+    async isOnFavoritesPage() {
+        return await super.isOnFavoritesSection();
+    }
+
+    
 }

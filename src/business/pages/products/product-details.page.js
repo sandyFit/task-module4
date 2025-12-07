@@ -80,6 +80,28 @@ export class ProductDetailsPage extends BasePage {
         await this.pause(1500, 'waiting for toast notification and favorites update');
     }
 
+    async addToFavoritesAndCheck() {
+        logger.info('Adding product to favorites');
+        await this.addToFavorites();
+
+        // Wait for any UI feedback or toast message
+        await this.pause(1000, 'waiting for feedback message');
+
+        // Check if product was already in favorites
+        const bodyText = await this.getElementText($('body'), 'Page body');
+        const alreadyInFavorites = bodyText.toLowerCase().includes('already') ||
+            bodyText.toLowerCase().includes('existe');
+
+        if (alreadyInFavorites) {
+            logger.info('ℹ️ Product is already in favorites list');
+            return false;
+        } else {
+            logger.info('✅ Product added to favorites');
+            return true;
+        }
+    }
+
+
     async isOnProductDetailsPage() {
         const url = await this.getCurrentUrl();
         return url.includes('/product/');

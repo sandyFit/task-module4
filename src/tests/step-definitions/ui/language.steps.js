@@ -3,6 +3,7 @@ import { HomePage } from '../../../business/pages/home/home.page.js';
 import { HeaderComponent } from '../../../business/components/common/header.component.js';
 import { waitForElementsCount } from '../../../core/browser/wait-helper.js';
 import { logger } from '../../../core/logger/logger.js';
+import { assertMinimumElements } from '../../assertions/assertions.js';
 import 'chai/register-should.js';
 
 const homePage = new HomePage();
@@ -27,6 +28,9 @@ Then(/^product names should remain in their original language$/, async () => {
     await waitForElementsCount(() => $$('[data-test="product-name"]'), 1, 8000);
 
     const nameElements = await $$('[data-test="product-name"]');
+
+    assertMinimumElements(nameElements, 1, 'product names after language switch');
+
     logger.info(`Found ${nameElements.length} product names`);
 
     const forbiddenSpanishWords = [

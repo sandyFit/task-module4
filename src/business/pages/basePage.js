@@ -4,11 +4,14 @@ import { logger } from '../../core/logger/logger.js';
 import { getDefaultTimeout } from '../../core/config/test-config.js';
 import { HeaderComponent } from '../components/common/header.component.js';
 
-
 export class BasePage {
     constructor() {
         this.header = new HeaderComponent();
     }
+
+    // ========================================
+    // NAVIGATION
+    // ========================================
 
     async navigateTo(path) {
         await browserManager.navigateTo(path);
@@ -22,11 +25,30 @@ export class BasePage {
         return waitHelper.waitForUrlToContain(path, timeout);
     }
 
+    // ========================================
+    // ELEMENT INTERACTIONS
+    // ========================================
+
     async clickElement(element, name = 'element') {
         logger.info(`Click → ${name}`);
         await waitHelper.waitForElementClickable(element);
         await element.click();
     }
+
+    async scrollToElement(element, name = 'element', options = {}) {
+        logger.info(`Scrolling into view: ${name}`);
+        try {
+            await element.scrollIntoView(options);
+        } catch (error) {
+            logger.warn(`Failed to scroll to ${name}, retrying...`);
+            await this.pause(500, 'waiting before scroll retry');
+            await element.scrollIntoView(options);
+        }
+    }
+
+    // ========================================
+    // FORM INPUTS
+    // ========================================
 
     async fillInput(element, value, name = 'input') {
         logger.info(`Typing into ${name}: ${value}`);
@@ -44,7 +66,6 @@ export class BasePage {
         await element.clearValue();
         await element.setValue(value);
     }
-
 
     async fillField(element, value, name = '') {
         const tag = await element.getTagName();
@@ -65,13 +86,16 @@ export class BasePage {
         }, element, value);
     }
 
-    async getElementText(element, name = 'element') {
-        await element.scrollIntoView();
+    // ========================================
+    // ELEMENT STATE CHECKS
+    // ========================================
 
-        await waitHelper.waitForElementVisible(element, 5000);
-        const text = await element.getText();
-        logger.info(`Text retrieved from ${name}: "${text}"`);
-        return text;
+    async isElementDisplayed(element) {
+        try {
+            return await element.isDisplayed();
+        } catch {
+            return false;
+        }
     }
 
     async waitForElementExist(element, timeout = 1000) {
@@ -83,17 +107,28 @@ export class BasePage {
         }
     }
 
+    // ========================================
+    // TEXT OPERATIONS
+    // ========================================
 
-    async scrollToElement(element, name = 'element', options = {}) {
-        logger.info(`Scrolling into view: ${name}`);
-        try {
-            await element.scrollIntoView(options);
-        } catch (error) {
-            logger.warn(`Failed to scroll to ${name}, retrying...`);
-            await this.pause(500, 'waiting before scroll retry');
-            await element.scrollIntoView(options);
-        }
+    async getElementText(element, name = 'element') {
+        await element.scrollIntoView();
+        await waitHelper.waitForElementVisible(element, 5000);
+        const text = await element.getText();
+        logger.info(`Text retrieved from ${name}: "${text}"`);
+        return text;
     }
+
+    async waitAndGetText(element, name = 'element', timeout = getDefaultTimeout()) {
+        await waitHelper.waitForElementVisible(element, timeout);
+        const text = await element.getText();
+        logger.info(`Wait + Text from ${name}: "${text}"`);
+        return text;
+    }
+
+    // ========================================
+    // PAGE STATE
+    // ========================================
 
     async waitForPageLoad(timeout) {
         timeout = timeout || getDefaultTimeout();
@@ -107,11 +142,6 @@ export class BasePage {
             }
         );
         logger.info('Page fully loaded');
-    }
-
-    async pause(ms, reason = '') {
-        if (reason) logger.info(`Pausing ${ms}ms: ${reason}`);
-        await browser.pause(ms);
     }
 
     async waitForAngular() {
@@ -142,9 +172,16 @@ export class BasePage {
         logger.info('✅ Angular stabilized');
     }
 
+    // ========================================
+    // UTILITIES
+    // ========================================
+
+    async pause(ms, reason = '') {
+        if (reason) logger.info(`Pausing ${ms}ms: ${reason}`);
+        await browser.pause(ms);
+    }
+
     async executeScript(script, ...args) {
         return await browserManager.executeScript(script, ...args);
     }
-
-
 }
