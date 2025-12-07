@@ -31,24 +31,51 @@ Therefore, only **Chrome** and **Firefox** were configured — both in **headles
 ## **Project Structure**
 
 ```
-src/ 
- ├── assertions/            # Custom assertions
- │     ├── signup.assertions.js
- │     ├── login.assertions.js
- │     └── ...
- ├── config                 # Main WDIO configuration
- │     └── wdio.conf.js 
- ├── data/                  # Test data
- ├── helpers/               # Reusable helper functions
- ├── features/              # .feature files (Gherkin)
- │     ├── signup.feature
- │     ├── login.feature
- │     └── ...
- ├── steps/                 # Step definitions
- │     ├── signup.steps.js
- │     ├── login.steps.js
- │     ├── hooks.js
- │     └── ...
+src/
+ ├── business/
+ │    ├── components/            # Reusable UI components
+ │    ├── data/                  # Test data factories
+ │    └── pages/                 # Page Objects
+ │          ├── account/
+ │          │    ├── account.page.js
+ │          │    └── profile.page.js
+ │          ├── auth/
+ │          │    ├── login.page.js
+ │          │    └── signup.page.js
+ │          ├── home/
+ │          │    └── home.page.js
+ │          ├── products/
+ │          │    ├── favorites.page.js
+ │          │    └── product-details.page.js
+ │          └── basePage.js      # Base class for all pages
+ ├── config/
+ │    └── wdio.conf.js           # WDIO configuration
+ ├── core/
+ │    ├── browser/
+ │    └── logger/
+ └── tests/
+      ├── features/              # Gherkin .feature files
+      │    ├── auth/
+      │    │    ├── login.feature
+      │    │    └── signup.feature
+      │    ├── product/
+      │    │    ├── favorites.feature
+      │    │    └── search.feature
+      │    └── ui/
+      │         └── language.feature
+      ├── step-definitions/      # Step definitions (refactored)
+      │    ├── auth/
+      │    │    ├── login.steps.js
+      │    │    ├── profile.steps.js
+      │    │    └── signup.steps.js
+      │    ├── product/
+      │    │    ├── add2Cart.steps.js
+      │    │    ├── favorites.steps.js
+      │    │    └── product-details.steps.js
+      │    └── ui/
+      │         └── language.steps.js
+      └── hooks.js
+  └── hooks.js
            
 ```
 ---
