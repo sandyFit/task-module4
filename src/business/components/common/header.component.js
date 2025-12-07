@@ -4,61 +4,75 @@ import { logger } from "../../../core/logger/logger.js";
 export class HeaderComponent extends BaseComponent {
 
     constructor() {
-        super('[data-test="site-header"]');
+        super('#navbarSupportedContent');
     }
 
 
-    get homeLink() {
-        return this.rootEl.$('[data-test="nav-home"]');
-    }
-    
-    // Select
-    get accountLink() {
-        return this.rootEl.$('[data-test="nav-menu"]');
-    }
-    // Dropdown Account Select 
-    get accountSelect() {
-        return this.rootEl.$('[data-test="nav-my-account"]');
-    }
+    selectors = {
+        homeLink: '[data-test="nav-home"]',
+        contactLink: '[data-test="nav-contact"]',
 
-    get favoritesSelect() {
-        return this.rootEl.$('[data-test="nav-profile"]');
-    }
+        categoriesMenu: '[data-test="nav-categories"]',
 
-    get profileSelect() {
-        return this.rootEl.$('[data-test="nav-my-profile"]');
-    }
-    
-    // Language Select
-    get LanguageSelect() {
-        return this.rootEl.$('[data-test="language-select"]');
-    }
+        languageSelect: '[data-test="language-select"]',
+        spanishLanguage: '[data-test="lang-es"]',
 
-    get spanishLanguage() {
-        return this.rootEl.$('[data-test="lang-es"]');
-    }
-
-    // Cart
-    get cartLink() {
-        return this.rootEl.$('data-test="nav-cart"]');
-    }
+        cartLink: '[data-test="nav-cart"]',
+        cartQuantity: '[data-test="cart-quantity"]'
+    };
 
 
+    // ---- GETTERS ----
+    get homeLink() { return this.rootEl.$(this.selectors.homeLink); }
+    get contactLink() { return this.rootEl.$(this.selectors.contactLink); }
+    get categoriesMenu() { return this.rootEl.$(this.selectors.categoriesMenu); }
 
+    // Language buttonis not in the root
+    get languageSelect() { return $(this.selectors.languageSelect); }
+    get spanishLanguage() { return $(this.selectors.spanishLanguage); }
+
+    get cartLink() { return this.rootEl.$(this.selectors.cartLink); }
+    get cartQuantity() { return this.rootEl.$(this.selectors.cartQuantity); }
+
+    // ---- ACTIONS ----
 
     async waitForLoaded() {
-        logger.info("Waiting for Header to be visible");
-        await this.root.waitForDisplayed({ timeout: 10000 });
+        logger.info("Waiting for Header to load");
+        await this.rootEl.waitForDisplayed({ timeout: 10000 });
     }
-
 
     async openCart() {
         logger.info("Opening cart");
-        await this.cartButton.click();
+        await this.cartLink.waitForClickable();
+        await this.cartLink.click();
     }
 
-    async openAccount() {
-        logger.info("Opening account section");
-        await this.accountButton.click();
+    async getCartCount() {
+        logger.info("Getting cart quantity");
+        await this.cartQuantity.waitForDisplayed({ timeout: 5000 });
+        return parseInt(await this.cartQuantity.getText(), 10);
     }
+
+    async openLanguageMenu() {
+        logger.info("Opening language dropdown");
+        await this.languageSelect.waitForClickable();
+        await this.languageSelect.click();
+    }
+
+    async selectSpanish() {
+        await this.openLanguageMenu();
+        await this.spanishLanguage.waitForClickable();
+        await this.spanishLanguage.click();
+    }
+
+    async waitForSpanish() {
+        await browser.waitUntil(async () => {
+            return (await this.homeLink.getText()).trim() === 'Inicio';
+        }, {
+            timeout: 5000,
+            timeoutMsg: 'Header did not switch to Spanish in time'
+        });
+    }
+
+
 }

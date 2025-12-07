@@ -26,7 +26,6 @@ Before(async function ({ pickle }) {
         !name.includes('sign up') &&
         !name.includes('signup') &&
         (
-            name.includes('login') ||
             name.includes('profile') ||
             name.includes('password') ||
             name.includes('favorite') ||
