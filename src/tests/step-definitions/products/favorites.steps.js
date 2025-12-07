@@ -3,7 +3,6 @@ import { expect } from 'chai';
 import { ProductDetailsPage } from '../../../business/pages/products/product-details.page.js';
 import { FavoritesPage } from '../../../business/pages/products/favorites.page.js';
 import { logger } from '../../../core/logger/logger.js';
-import { waitForUrlToContain } from '../../../core/browser/wait-helper.js';
 
 const productDetailsPage = new ProductDetailsPage();
 const favoritesPage = new FavoritesPage();
@@ -22,11 +21,9 @@ When('the user clicks the Add to Favourites button', async () => {
     logger.info('Adding product to favorites');
     await productDetailsPage.addToFavorites();
 
-    // Wait for any feedback message (success or already exists)
-    await browser.pause(1000);
-
+    await productDetailsPage.pause(1000, 'waiting for any feedback message');
     // Check if product was already in favorites
-    const bodyText = await $('body').getText();
+    const bodyText = await productDetailsPage.getElementText($('body'), 'Page body');
     const alreadyInFavorites = bodyText.toLowerCase().includes('already') ||
         bodyText.toLowerCase().includes('existe');
 

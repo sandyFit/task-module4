@@ -26,16 +26,15 @@ export class HeaderComponent extends BaseComponent {
     get homeLink() { return this.rootEl.$(this.selectors.homeLink); }
     get contactLink() { return this.rootEl.$(this.selectors.contactLink); }
     get categoriesMenu() { return this.rootEl.$(this.selectors.categoriesMenu); }
-
-    // Language buttonis not in the root
+    
+    get cartLink() { return this.rootEl.$(this.selectors.cartLink); }
+    get cartQuantity() { return this.rootEl.$(this.selectors.cartQuantity); }
+    
+    // Language button is not in the root so must be global
     get languageSelect() { return $(this.selectors.languageSelect); }
     get spanishLanguage() { return $(this.selectors.spanishLanguage); }
 
-    get cartLink() { return this.rootEl.$(this.selectors.cartLink); }
-    get cartQuantity() { return this.rootEl.$(this.selectors.cartQuantity); }
-
     // ---- ACTIONS ----
-
     async waitForLoaded() {
         logger.info("Waiting for Header to load");
         await this.rootEl.waitForDisplayed({ timeout: 10000 });

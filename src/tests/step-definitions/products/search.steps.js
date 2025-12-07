@@ -24,7 +24,9 @@ Then(/^the search results should display only Claw Hammer products$/, async () =
     const allProducts = await homePage.productCards;
     const products = [];
     for (const product of allProducts) {
-        if (await product.isDisplayed()) products.push(product);
+        if (await product.isDisplayed().catch(() => false)) {
+            products.push(product);
+        }
     }
 
     assert.isAbove(products.length, 0, 'No products are visible after search');

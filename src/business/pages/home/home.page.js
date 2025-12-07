@@ -12,6 +12,7 @@ export class HomePage extends BasePage {
         productName: '[data-test="product-name"]'
     };
 
+    // === GETTERS ===
     get filtersButton() {
         return $(this.selectors.filtersButton);
     }
@@ -28,6 +29,7 @@ export class HomePage extends BasePage {
         return $$(this.selectors.productCards);
     }
 
+    // === NAVIGATION ===
     async open() {
         logger.info('Opening Home page');
         await this.navigateTo('/');
@@ -39,6 +41,7 @@ export class HomePage extends BasePage {
         logger.info(`Home page loaded with ${products.length} products`);
     }
 
+    // === ACTIONS ===
     async searchProduct(query) {
         logger.info(`Searching product: ${query}`);
 
@@ -50,37 +53,34 @@ export class HomePage extends BasePage {
         const searchInput = await this.searchInput;
         await this.setInputValueDirectly(searchInput, query, 'Search Input');
 
-        // CRITICAL: Add pause after JS input to let DOM stabilize
-        await browser.pause(500);
+        await this.pause(500, 'allowing DOM to stabilize after setting input value');
 
         // Direct click with fallback - bypass visibility checks
         const searchBtn = await this.searchButton;
-        logger.info('Click → Search Button');
 
         await searchBtn.waitForExist({ timeout: 5000 });
         await searchBtn.scrollIntoView();
-        await browser.pause(300);
+        await this.pause(300, 'allowing search button to be ready after scroll');
 
         try {
-            await searchBtn.click();
+            await this.clickElement(searchBtn, 'Search Button');
             logger.info('✅ Search button clicked successfully');
         } catch (clickError) {
             logger.info('⚠️ Normal click failed, using JavaScript click');
-            await browser.execute((el) => el.click(), searchBtn);
+            await this.executeScript((el) => el.click(), searchBtn);
             logger.info('✅ JavaScript click succeeded');
         }
     }
 
     async waitForSearchResults() {
-        // Wait for search to complete - longer pause since filtering takes time
-        await browser.pause(1500);
+        await this.pause(1500, 'waiting for search filtering to complete');
 
         await waitForElementsCount(() => this.getProducts(), 1, 10000);
 
         const products = await this.getProducts();
         logger.info(`Found ${products.length} products after search`);
 
-        // Wait for first product to be ready - that's enough
+        // Wait for first product to be ready 
         if (products.length > 0) {
             try {
                 await products[0].waitForDisplayed({ timeout: 5000 });
@@ -98,7 +98,6 @@ export class HomePage extends BasePage {
     async getProductName(productElement) {
         const nameElement = await productElement.$(this.selectors.productName);
 
-        // Wait for existence only - no scrolling, no visibility checks
         const exists = await nameElement.waitForExist({
             timeout: 1000
         }).catch(() => false);
@@ -107,7 +106,6 @@ export class HomePage extends BasePage {
             return '';
         }
 
-        // Try getText first (fastest method)
         try {
             const name = await nameElement.getText();
             if (name && name.trim()) {
@@ -117,7 +115,6 @@ export class HomePage extends BasePage {
             // Silent fail, try next method
         }
 
-        // Fallback to attribute
         try {
             const name = await nameElement.getAttribute('textContent');
             if (name && name.trim()) {
@@ -141,36 +138,26 @@ export class HomePage extends BasePage {
             const card = productCards[i];
 
             try {
-                // Scroll the card into view
-                await card.scrollIntoView();
-                await browser.pause(100); // Reduced pause
+                await this.scrollToElement(card, `Product Card ${i}`);
+                await this.pause(100, 'allowing DOM to stabilize after scrolling');
 
-                // Find the title element within THIS card with shorter timeout
+                // Find the title element within THIS card 
                 const titleElement = await card.$('[data-test="product-name"]');
 
-                // Check if element exists quickly (500ms instead of 3000ms)
-                const exists = await titleElement.waitForExist({
-                    timeout: 500,
-                    reverse: false
-                }).catch(() => false);
+                const exists = await this.waitForElementExist(titleElement, 500);
 
                 if (!exists) {
-                    continue; // Skip this product quickly
+                    continue; 
                 }
 
                 const title = await titleElement.getText();
                 logger.info(`Product ${i}: "${title}"`);
 
-                // Check if this is the product we're looking for
                 if (title.toLowerCase().includes(productName.toLowerCase())) {
-                    // Click immediately while element is in view
-                    await titleElement.waitForClickable({ timeout: 2000 });
-                    await titleElement.click();
-                    logger.info(`✅ Clicked product: ${title}`);
+                    await this.clickElement(titleElement, `Product: ${title}`);
                     return;
                 }
             } catch (error) {
-                // Silently skip - no need to log warnings
                 continue;
             }
         }

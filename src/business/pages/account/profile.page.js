@@ -42,10 +42,6 @@ export class ProfilePage extends AccountPage {
         await this.waitForProfileElements();
     }
 
-    async getCurrentUrl() {
-        return await super.getCurrentUrl();
-    }
-
     async waitForProfileElements() {
         logger.info('Waiting for profile form elements...');
 
@@ -63,31 +59,7 @@ export class ProfilePage extends AccountPage {
         logger.info('✅ All profile elements are visible');
     }
 
-    async waitForAngular() {
-        await browser.execute(() => {
-            return new Promise((resolve) => {
-                if (window.getAllAngularTestabilities) {
-                    const testabilities = window.getAllAngularTestabilities();
-                    let count = testabilities.length;
-                    if (count === 0) {
-                        resolve();
-                        return;
-                    }
-                    testabilities.forEach((testability) => {
-                        testability.whenStable(() => {
-                            count--;
-                            if (count === 0) {
-                                resolve();
-                            }
-                        });
-                    });
-                } else {
-                    resolve();
-                }
-            });
-        });
-        await browser.pause(500);
-    }
+    
 
     async updatePassword(currentPassword, newPassword) {
         logger.info('Updating password');
@@ -102,8 +74,8 @@ export class ProfilePage extends AccountPage {
         await this.clearAndFillInput(this.newPasswordInput, newPassword, 'New password');
         await this.clearAndFillInput(this.confirmPasswordInput, newPassword, 'Confirm password');
 
-        await this.changePasswordButton.click();
-        await browser.pause(1000);
+        await this.clickElement(this.changePasswordButton, 'Change Password Button');
+        await this.pause(1000, 'waiting for password update to process');
 
         logger.info('✅ Password update submitted');
     }

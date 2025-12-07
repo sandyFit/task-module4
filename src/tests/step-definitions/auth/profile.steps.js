@@ -1,6 +1,7 @@
 import { Given, When, Then } from '@wdio/cucumber-framework';
 import { createTestCredentials, generateRandomPassword } from '../../../business/data/user-factory.js';
 import { ProfilePage } from '../../../business/pages/account/profile.page.js';
+import * as browserManager from '../../../core/browser/browser-helper.js';
 import { logger } from '../../../core/logger/logger.js';
 import { expect } from 'chai';
 
@@ -29,7 +30,7 @@ When(/^the user updates their password$/, async () => {
     logger.info('Filling password change form');
 
     const currentPwd = testCredentials.getCurrentPassword();
-    const newPwd = generateRandomPassword(12); // ALWAYS valid
+    const newPwd = generateRandomPassword(12); 
     testCredentials.updatePassword(newPwd);
 
     await profilePage.clearAndFillInput(
@@ -54,23 +55,21 @@ When(/^the user updates their password$/, async () => {
 });
 
 When(/^clicks the Change Password button$/, async () => {
-
     const btn = await profilePage.changePasswordButton;
 
-    await 
     await btn.waitForDisplayed({ timeout: 10000 });
     await profilePage.waitForAngular();
 
     const enabled = await btn.isEnabled();
     if (!enabled) {
-        await browser.saveScreenshot('./change-password-disabled.png');
+        await browserManager.takeScreenshot('change-password-disabled');
         throw new Error('ERROR: Change Password button is disabled');
     }
 
     logger.info('Clicking Change Password button');
 
-    profilePage.clickElement(btn, 'Change Password button');
-    await browser.pause(300);
+    await profilePage.clickElement(btn, 'Change Password button');
+    await profilePage.pause(300, 'waiting for password change to process');
 });
 
 
@@ -79,13 +78,11 @@ Then(/^the new password should be saved successfully$/, async () => {
 
     logger.info('Verifying redirect to login after password change');
 
-    // If backend validation fails → catch it EARLY
     const errorAlert = await $('[data-test="alert-error"]');
     if (await errorAlert.isDisplayed()) {
         const txt = await errorAlert.getText();
         throw new Error('Password change failed: ' + txt);
     }
-
     
 });
 
@@ -93,17 +90,7 @@ Then(/^a success message should appear$/, async () => {
 
     logger.info('Waiting for redirect to login after password change…');
 
-    await browser.waitUntil(
-        async () => {
-            const url = await profilePage.getCurrentUrl(); 
-            return url.includes('/auth/login');
-        },
-        {
-            timeout: 15000,
-            interval: 500,
-            timeoutMsg: 'Expected redirect to login page after password change'
-        }
-    );
+    await profilePage.waitForUrlToContain('/auth/login', 15000);
 
     const finalUrl = await profilePage.getCurrentUrl();
 

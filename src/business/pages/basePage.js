@@ -3,17 +3,14 @@ import * as browserManager from '../../core/browser/browser-helper.js';
 import { logger } from '../../core/logger/logger.js';
 import { getDefaultTimeout } from '../../core/config/test-config.js';
 import { HeaderComponent } from '../components/common/header.component.js';
-import { AccountSidebar } from '../components/account/account-sidebar.component.js';
 
 
 export class BasePage {
     constructor() {
         this.header = new HeaderComponent();
-        this.accountSidebar = new AccountSidebar();
     }
 
     async navigateTo(path) {
-        logger.info(`Navigating to: ${path}`);
         await browserManager.navigateTo(path);
     }
 
@@ -40,12 +37,10 @@ export class BasePage {
     async clearAndFillInput(element, value, name = 'input') {
         logger.info(`Clearing & typing into ${name}: ${value}`);
 
-        // Wait for it to be fully displayed and enabled
         await element.waitForDisplayed({ timeout: 5000 });
         await element.waitForEnabled({ timeout: 5000 });
-        await browser.pause(100);
+        await this.pause(100, 'allowing element to be ready for input');
 
-        // Clear and type
         await element.clearValue();
         await element.setValue(value);
     }
@@ -79,24 +74,25 @@ export class BasePage {
         return text;
     }
 
-    async isElementDisplayed(element) {
+    async waitForElementExist(element, timeout = 1000) {
         try {
-            return await element.isDisplayed();
+            await waitHelper.waitForElementExist(element, timeout);
+            return true;
         } catch {
             return false;
         }
     }
 
-    async waitAndGetText(element, name = 'element', timeout = getDefaultTimeout()) {
-        await waitHelper.waitForElementVisible(element, timeout);
-        const text = await element.getText();
-        logger.info(`Wait + Text from ${name}: "${text}"`);
-        return text;
-    }
 
-    async scrollToElement(element, name = 'element') {
+    async scrollToElement(element, name = 'element', options = {}) {
         logger.info(`Scrolling into view: ${name}`);
-        await element.scrollIntoView();
+        try {
+            await element.scrollIntoView(options);
+        } catch (error) {
+            logger.warn(`Failed to scroll to ${name}, retrying...`);
+            await this.pause(500, 'waiting before scroll retry');
+            await element.scrollIntoView(options);
+        }
     }
 
     async waitForPageLoad(timeout) {
@@ -113,7 +109,42 @@ export class BasePage {
         logger.info('Page fully loaded');
     }
 
-    
+    async pause(ms, reason = '') {
+        if (reason) logger.info(`Pausing ${ms}ms: ${reason}`);
+        await browser.pause(ms);
+    }
+
+    async waitForAngular() {
+        logger.info('Waiting for Angular to stabilize');
+        await browser.execute(() => {
+            return new Promise((resolve) => {
+                if (window.getAllAngularTestabilities) {
+                    const testabilities = window.getAllAngularTestabilities();
+                    let count = testabilities.length;
+                    if (count === 0) {
+                        resolve();
+                        return;
+                    }
+                    testabilities.forEach((testability) => {
+                        testability.whenStable(() => {
+                            count--;
+                            if (count === 0) {
+                                resolve();
+                            }
+                        });
+                    });
+                } else {
+                    resolve();
+                }
+            });
+        });
+        await this.pause(500, 'allowing Angular to stabilize');
+        logger.info('✅ Angular stabilized');
+    }
+
+    async executeScript(script, ...args) {
+        return await browserManager.executeScript(script, ...args);
+    }
 
 
 }

@@ -1,6 +1,8 @@
 import { Given, When, Then } from '@wdio/cucumber-framework';
 import { HomePage } from '../../../business/pages/home/home.page.js';
 import { HeaderComponent } from '../../../business/components/common/header.component.js';
+import { waitForElementsCount } from '../../../core/browser/wait-helper.js';
+import { logger } from '../../../core/logger/logger.js';
 import 'chai/register-should.js';
 
 const homePage = new HomePage();
@@ -21,22 +23,17 @@ Then(/^all interface text should appear in Spanish$/, async () => {
 
 
 Then(/^product names should remain in their original language$/, async () => {
+    logger.info('Waiting for product names to reappear after language switch');
+    await waitForElementsCount(() => $$('[data-test="product-name"]'), 1, 8000);
 
-    // Wait until product list is fully re-rendered
-    await browser.waitUntil(async () => {
-        const items = await $$('[data-test="product-name"]');
-        return items.length > 0;
-    }, {
-        timeout: 8000,
-        timeoutMsg: 'Product names did not reappear after language switch'
-    });
-
-    // Select only REAL product name elements (not entire cards)
     const nameElements = await $$('[data-test="product-name"]');
+    logger.info(`Found ${nameElements.length} product names`);
 
     const forbiddenSpanishWords = [
         "martillo", "alicates", "destornillador", "tenazas"
     ];
+
+    logger.info('Verifying product names are not translated to Spanish');
 
     for (const nameEl of nameElements) {
         const name = (await nameEl.getText()).toLowerCase();
@@ -45,6 +42,8 @@ Then(/^product names should remain in their original language$/, async () => {
             name.should.not.contain(word);
         });
     }
+
+    logger.info('✅ All product names remained in their original language');
 });
 
 

@@ -1,5 +1,6 @@
 import { BasePage } from '../basePage.js';
 import { logger } from '../../../core/logger/logger.js';
+import { waitForElementsCount } from '../../../core/browser/wait-helper.js'; 
 
 export class ProductDetailsPage extends BasePage {
 
@@ -48,14 +49,7 @@ export class ProductDetailsPage extends BasePage {
 
         await this.navigateTo('/');
 
-        await browser.waitUntil(
-            async () => (await this.productCards).length > 0,
-            {
-                timeout: 10000,
-                interval: 300,
-                timeoutMsg: 'No products were found on the Home page'
-            }
-        );
+        await waitForElementsCount(() => this.productCards, 1, 10000);
 
         logger.info("Home page loaded — products found");
 
@@ -77,13 +71,13 @@ export class ProductDetailsPage extends BasePage {
     async addToCart() {
         logger.info('Adding product to cart');
         await this.clickElement(this.addToCartButtonEl, 'Add to Cart button');
-        await browser.pause(1500); // allow toast + cart badge update
+        await this.pause(1500, 'waiting for toast notification and cart badge update');
     }
 
     async addToFavorites() {
         logger.info('Adding product to favorites');
         await this.clickElement(this.addToFavoritesButtonEl, 'Add to Favorites button');
-        await browser.pause(1500);
+        await this.pause(1500, 'waiting for toast notification and favorites update');
     }
 
     async isOnProductDetailsPage() {

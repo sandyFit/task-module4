@@ -85,6 +85,6 @@ export class SignupPage extends BasePage {
     async clickRegister() {
         await this.registerButton.waitForClickable({ timeout: 5000 });
         await this.clickElement(this.registerButton, 'Register Button');
-        await browser.pause(1000); // Give it a moment to process
+        await this.pause(1000, 'Allowing registration form to process'); 
     }
 }
