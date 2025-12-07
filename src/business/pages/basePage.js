@@ -4,13 +4,12 @@ import { logger } from '../../core/logger/logger.js';
 import { getDefaultTimeout } from '../../core/config/test-config.js';
 import { HeaderComponent } from '../components/common/header.component.js';
 import { AccountSidebar } from '../components/account/account-sidebar.component.js';
-import { ProductCard } from '../components/home/product-card.component.js';
+
 
 export class BasePage {
     constructor() {
         this.header = new HeaderComponent();
         this.accountSidebar = new AccountSidebar();
-        this.productCard = new ProductCard();
     }
 
     async navigateTo(path) {
@@ -40,10 +39,17 @@ export class BasePage {
 
     async clearAndFillInput(element, value, name = 'input') {
         logger.info(`Clearing & typing into ${name}: ${value}`);
-        await waitHelper.waitForElementVisible(element);
+
+        // Wait for it to be fully displayed and enabled
+        await element.waitForDisplayed({ timeout: 5000 });
+        await element.waitForEnabled({ timeout: 5000 });
+        await browser.pause(100);
+
+        // Clear and type
         await element.clearValue();
         await element.setValue(value);
     }
+
 
     async fillField(element, value, name = '') {
         const tag = await element.getTagName();
@@ -55,8 +61,19 @@ export class BasePage {
         }
     }
 
+    async setInputValueDirectly(element, value, name = 'input') {
+        logger.info(`Typing into ${name} directly via JS: ${value}`);
+        await browser.execute((el, val) => {
+            el.value = val;
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+            el.dispatchEvent(new Event('change', { bubbles: true }));
+        }, element, value);
+    }
+
     async getElementText(element, name = 'element') {
-        await waitHelper.waitForElementVisible(element);
+        await element.scrollIntoView();
+
+        await waitHelper.waitForElementVisible(element, 5000);
         const text = await element.getText();
         logger.info(`Text retrieved from ${name}: "${text}"`);
         return text;

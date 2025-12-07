@@ -3,15 +3,15 @@ import { logger } from "../../../core/logger/logger.js";
 
 export class AccountSidebar extends BaseComponent {
     constructor() {
-        super('aside[data-test="account-sidebar"]'); 
+        super('[data-test="account-sidebar"]'); 
     }
 
     get profileLink() {
-        return this.rootEl.$('a[data-test="account-profile"]');
+        return this.rootEl.$('[data-test="nav-profile"]');
     }
 
     get favoritesLink() {
-        return this.rootEl.$('a[data-test="account-favorites"]');
+        return this.rootEl.$('[data-test="nav-favorites"]');
     }
 
     async waitForLoaded() {

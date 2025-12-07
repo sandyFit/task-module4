@@ -1,52 +1,56 @@
 import { BaseComponent } from "../common/base.component.js";
 import { logger } from "../../../core/logger/logger.js";
 
-
-
 export class HeaderComponent extends BaseComponent {
 
-    get root() {
-        return $('header[data-test="site-header"]');
+    constructor() {
+        super('[data-test="site-header"]');
     }
 
-    get logo() {
-        return this.root.$('a[data-test="logo"]');
+
+    get homeLink() {
+        return this.rootEl.$('[data-test="nav-home"]');
+    }
+    
+    // Select
+    get accountLink() {
+        return this.rootEl.$('[data-test="nav-menu"]');
+    }
+    // Dropdown Account Select 
+    get accountSelect() {
+        return this.rootEl.$('[data-test="nav-my-account"]');
     }
 
-    get searchInput() {
-        return this.root.$('input[data-test="search-input"]');
+    get favoritesSelect() {
+        return this.rootEl.$('[data-test="nav-profile"]');
     }
 
-    get searchButton() {
-        return this.root.$('button[data-test="search-button"]');
+    get profileSelect() {
+        return this.rootEl.$('[data-test="nav-my-profile"]');
+    }
+    
+    // Language Select
+    get LanguageSelect() {
+        return this.rootEl.$('[data-test="language-select"]');
     }
 
-    get cartButton() {
-        return this.root.$('a[data-test="cart-link"]');
+    get spanishLanguage() {
+        return this.rootEl.$('[data-test="lang-es"]');
     }
 
-    get accountButton() {
-        return this.root.$('a[data-test="account-link"]');
+    // Cart
+    get cartLink() {
+        return this.rootEl.$('data-test="nav-cart"]');
     }
+
+
+
 
     async waitForLoaded() {
         logger.info("Waiting for Header to be visible");
         await this.root.waitForDisplayed({ timeout: 10000 });
     }
 
-    async clickLogo() {
-        logger.info("Clicking site logo");
-        await this.logo.waitForClickable();
-        await this.logo.click();
-    }
-
-    async searchFor(query) {
-        logger.info(`Searching for: ${query}`);
-        await this.searchInput.waitForDisplayed();
-        await this.searchInput.setValue(query);
-        await this.searchButton.waitForClickable();
-        await this.searchButton.click();
-    }
 
     async openCart() {
         logger.info("Opening cart");

@@ -1,11 +1,7 @@
 import { Given, When, Then } from '@wdio/cucumber-framework';
 import { navigateToProductDetails } from '../helpers/navigation.js';
 import { testCredentials } from '../data/test-credentials.js';
-import {
-    assertFavoriteSuccessMessage,
-    expectFavoritesListNotEmpty,
-    shouldBeOnFavoritesPage
-} from '../assertions/favorites.assertions.js';
+
 
 Given(/^the user is logged in$/, async () => {
     console.log('User already logged in via Before hook');
@@ -55,6 +51,9 @@ Then(/^the product should appear in the favorites page$/, async () => {
         { timeout: 10000, timeoutMsg: 'Did not navigate to favorites page' }
     );
 
-    await shouldBeOnFavoritesPage();
-    await expectFavoritesListNotEmpty();
+    const url = await browser.getUrl();
+    assert.isTrue(
+        url.includes('/auth/login'),
+        "ASSERT: Expected redirect to /auth/login after password change"
+    );
 });

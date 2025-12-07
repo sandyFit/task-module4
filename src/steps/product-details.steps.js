@@ -9,14 +9,22 @@ import {
     assertProductHasCategory,
     assertProductHasCO2Rating
 } from '../assertions/product-details.assertions.js';
-import { navigateToHome, navigateToProductDetails } from '../helpers/navigation.js';
+import { navigateToHome } from '../helpers/navigation.js';
 
 Given(/^the user is on the Home page$/, async () => {
     await navigateToHome();
 });
 
 When(/^the user clicks on a specific product name or image$/, async () => {
-    await navigateToProductDetails();
+    // Check what products are available
+    const cards = await homePage.getProductCardComponents();
+
+    for (const card of cards) {
+        const title = await card.getTitleText();
+        console.log(`Available product: "${title}"`);
+    }
+
+    await homePage.openProductDetails("claw hammer");
 });
 
 Then(/^the system should open the Product Details page$/, async () => {

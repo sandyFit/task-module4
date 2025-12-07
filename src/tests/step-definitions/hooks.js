@@ -1,9 +1,11 @@
 import { Before, After, BeforeAll, AfterAll } from '@wdio/cucumber-framework';
 import { logger } from '../../core/logger/logger.js';
-import { getExistingUser } from '../../business/data/user-factory.js';
+import { getExistingUser, createNewUser } from '../../business/data/user-factory.js';
 import { LoginPage } from '../../business/pages/auth/login.page.js';
+import { SignupPage } from '../../business/pages/auth/signup.page.js';
 
 const loginPage = new LoginPage();
+const signupPage = new SignupPage();
 
 logger.info('🔧 HOOKS: hooks.js loaded');
 
@@ -26,6 +28,7 @@ Before(async function ({ pickle }) {
         (
             name.includes('login') ||
             name.includes('profile') ||
+            name.includes('password') ||
             name.includes('favorite') ||
             name.includes('favourite') ||
             name.includes('account')
@@ -34,13 +37,61 @@ Before(async function ({ pickle }) {
     if (requiresLogin) {
         logger.info('🔐 Scenario requires authenticated user');
 
-        const user = getExistingUser();
-        await loginPage.open();
-        await loginPage.login(user.email, user.password);
+        // Profile/password scenarios already used a new account — keep same logic
+        const isProfileTest = name.includes('profile') || name.includes('password');
 
-        logger.info('✔ Logged in with existing test user');
+        if (isProfileTest) {
+            logger.info('🆕 Creating new user for profile test');
+
+            const newUser = createNewUser();
+
+            await signupPage.open();
+            await signupPage.registerUser(newUser);
+
+            await browser.waitUntil(
+                async () => (await browser.getUrl()).includes('/auth/login'),
+                {
+                    timeout: 10000,
+                    timeoutMsg: 'Expected redirect to login page after registration'
+                }
+            );
+
+            logger.info('✔ User registered, now logging in');
+
+            await loginPage.open();
+            await loginPage.login(newUser.email, newUser.password);
+
+            logger.info('✔ New user registered and logged in');
+            this.currentUser = newUser;
+
+        } else {
+            // ⭐ CHANGE HERE:
+            // For ALL other scenarios → also create a NEW user, so favorites is always empty.
+            logger.info('🆕 Creating new user for scenario (clean account state)');
+
+            const newUser = createNewUser();
+
+            await signupPage.open();
+            await signupPage.registerUser(newUser);
+
+            await browser.waitUntil(
+                async () => (await browser.getUrl()).includes('/auth/login'),
+                {
+                    timeout: 10000,
+                    timeoutMsg: 'Expected redirect to login page after registration'
+                }
+            );
+
+            logger.info('✔ User registered, now logging in');
+
+            await loginPage.open();
+            await loginPage.login(newUser.email, newUser.password);
+
+            logger.info('✔ New user registered and logged in');
+            this.currentUser = newUser;
+        }
     } else {
-        logger.info('ℹ No login required for this scenario');
+        logger.info('No login required for this scenario');
     }
 });
 

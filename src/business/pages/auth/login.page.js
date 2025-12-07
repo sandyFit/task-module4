@@ -1,7 +1,5 @@
 import { BasePage } from '../basePage.js';
 import { logger } from '../../../core/logger/logger.js';
-import * as formHelper from '../../../core/browser/form-helper.js';
-import { waitForUrlToContain } from '../../../core/browser/wait-helper.js';
 
 
 export class LoginPage extends BasePage {
@@ -36,7 +34,6 @@ export class LoginPage extends BasePage {
         await this.waitForUrlToContain('/account', 15000);
         logger.info('Successfully logged in and redirected to account page');
     }
-
 
 
     /**

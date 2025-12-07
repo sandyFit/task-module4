@@ -1,6 +1,6 @@
 import { Given, When, Then } from '@wdio/cucumber-framework';
 import { LoginPage } from '../../../business/pages/auth/login.page.js';
-import { verifyRedirectToAccount } from '../../assertions/login.assertions.js'
+import { verifyRedirectToAccount } from '../../assertions/assertions.js'
 import { logger } from '../../../core/logger/logger.js';
 import { getExistingUser } from '../../../business/data/user-factory.js';
 import { expect } from 'chai';

@@ -46,10 +46,11 @@ export class SignupPage extends BasePage {
 
     async waitForPageReady() {
         await $(this.selectors.firstName).waitForDisplayed({ timeout: 10000 });
+        logger.info('✅ Signup page ready');
     }
 
     async registerUser(data) {
-        logger.info('Registering new user');
+        logger.info(`Registering new user: ${data.email}`);
 
         // Map data keys directly to selectors
         for (const [key, value] of Object.entries(data)) {
@@ -60,6 +61,8 @@ export class SignupPage extends BasePage {
         }
 
         await this.clickRegister();
+
+        logger.info('✅ Registration form submitted');
     }
 
     getElementForKey(key) {
@@ -80,6 +83,8 @@ export class SignupPage extends BasePage {
     }
 
     async clickRegister() {
+        await this.registerButton.waitForClickable({ timeout: 5000 });
         await this.clickElement(this.registerButton, 'Register Button');
+        await browser.pause(1000); // Give it a moment to process
     }
 }

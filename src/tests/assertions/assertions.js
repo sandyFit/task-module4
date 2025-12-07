@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect, assert } from 'chai';
 import { BasePage } from '../../business/pages/basePage.js';
 
 const basePage = new BasePage();
@@ -11,4 +11,11 @@ export async function verifyRedirectToAccount(timeout = 10000) {
 
     const url = await basePage.getCurrentUrl();
     expect(url).to.contain('/account', 'URL should contain /account after login');
+}
+
+export function assertNotEmptyFields(object, fields) {
+    fields.forEach(field => {
+        assert.exists(object[field], `Field "${field}" should exist`);
+        assert.isNotEmpty(object[field], `Field "${field}" should not be empty`);
+    });
 }

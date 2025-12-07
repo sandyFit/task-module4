@@ -73,3 +73,17 @@ export async function waitForTextInElement(element, expectedText, timeout = 5000
         }
     );
 }
+
+/**
+ * Wait for a list of elements to reach a minimum count
+ */
+export async function waitForElementsCount(getElementsFn, minCount = 1, timeout = 5000) {
+    return await browser.waitUntil(
+        async () => (await getElementsFn()).length >= minCount,
+        {
+            timeout,
+            timeoutMsg: `Expected at least ${minCount} elements, but did not load in ${timeout}ms`
+        }
+    );
+}
+
