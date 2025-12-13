@@ -100,4 +100,61 @@ describe(']Restful-Booker API Tests', () => {
         });
     });
 
+    /**
+     * TEST SUITE 2: Create Booking
+     * Tests POST /booking endpoint
+     */
+    describe('Create Booking', () => {
+        it('should create booking with complete data', async () => {
+            const response = await bookingService.createBooking(testBookingData);
+
+            // Store booking ID for later tests
+            createdBookingId = response.data.bookingid;
+
+            // Assertion 1: Status Code
+            expect(response.status).to.equal(200);
+
+            // Assertion 2: Response Time
+            expect(response.duration).to.be.below(config.expectedResponseTime.medium);
+
+            // Assertion 3: Response Headers
+            expect(response.headers).to.have.property('content-type');
+            expect(response.headers['content-type']).to.include('application/json');
+
+            // Assertion 4: Response Body
+            expect(response.data).to.have.property('bookingid');
+            expect(response.data.bookingid).to.be.a('number');
+            expect(response.data.booking.firstname).to.equal(testBookingData.firstname);
+            expect(response.data.booking.lastname).to.equal(testBookingData.lastname);
+            expect(response.data.booking.totalprice).to.equal(testBookingData.totalprice);
+
+            // Assertion 5: Schema Validation
+            const { error } = createBookingResponseSchema.validate(response.data);
+            expect(error).to.be.undefined;
+        });
+
+        it('should create booking with minimal required data', async () => {
+            const response = await bookingService.createBooking(minimalBookingData);
+
+            // Assertion 1: Status Code
+            expect(response.status).to.equal(200);
+
+            // Assertion 2: Response Time
+            expect(response.duration).to.be.below(config.expectedResponseTime.medium);
+
+            // Assertion 3: Response Headers
+            expect(response.headers).to.have.property('content-type');
+            expect(response.headers['server']).to.exist;
+
+            // Assertion 4: Response Body
+            expect(response.data).to.have.property('bookingid');
+            expect(response.data.booking.firstname).to.equal(minimalBookingData.firstname);
+            expect(response.data.booking.depositpaid).to.equal(false);
+
+            // Assertion 5: Schema Validation
+            const { error } = createBookingResponseSchema.validate(response.data);
+            expect(error).to.be.undefined;
+        });
+    });
+
 });

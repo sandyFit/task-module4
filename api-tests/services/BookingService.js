@@ -59,6 +59,20 @@ class BookingService {
     };
 
     /**
+     * Create a new booking
+     * @param {Object} bookingData - Booking details
+     * @returns {Promise} Response with created booking
+     */
+    async createBooking(bookingData) {
+        try {
+            const response = await this.client.post(config.endpoints.booking, bookingData);
+            return response;
+        } catch (error) {
+            throw this._handleError(error);
+        }
+    }
+
+    /**
      * Error handler for consistent error format
      * @private
      * @param {Error} error - Axios error
