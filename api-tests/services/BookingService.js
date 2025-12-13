@@ -87,6 +87,77 @@ class BookingService {
     };
 
     /**
+    * Update booking (PUT - full update)
+    * @param {number} id - Booking ID
+    * @param {Object} bookingData - Complete booking details
+    * @param {string} token - Auth token
+    * @returns {Promise} Response with updated booking
+    */
+    async updateBooking(id, bookingData, token) {
+        try {
+            const response = await this.client.put(
+                config.endpoints.bookingById(id),
+                bookingData,
+                {
+                    headers: {
+                        'Cookie': `token=${token}`,
+                        'Authorization': `Basic ${this._encodeCredentials()}`
+                    }
+                }
+            );
+            return response;
+        } catch (error) {
+            throw this._handleError(error);
+        }
+    };
+
+    /**
+     * Partially update booking (PATCH)
+     * @param {number} id - Booking ID
+     * @param {Object} partialData - Partial booking details
+     * @param {string} token - Auth token
+     * @returns {Promise} Response with updated booking
+     */
+    async partialUpdateBooking(id, partialData, token) {
+        try {
+            const response = await this.client.patch(
+                config.endpoints.bookingById(id),
+                partialData,
+                {
+                    headers: {
+                        'Cookie': `token=${token}`,
+                        'Authorization': `Basic ${this._encodeCredentials()}`
+                    }
+                }
+            );
+            return response;
+        } catch (error) {
+            throw this._handleError(error);
+        }
+    };
+
+    
+
+    /**
+     * Encode credentials for Basic Auth header
+     * @private
+     * @returns {string} Base64 encoded credentials
+     */
+    _encodeCredentials() {
+        const credentials = `${config.auth.username}:${config.auth.password}`;
+        return Buffer.from(credentials).toString('base64');
+    };
+
+
+
+    /**
+     * Error handler for consistent error format
+     * @private
+     * @param {Error} error - Axios error
+     * @returns {Error} Formatted error
+     */
+
+    /**
      * Error handler for consistent error format
      * @private
      * @param {Error} error - Axios error

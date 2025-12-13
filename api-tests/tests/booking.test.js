@@ -182,6 +182,85 @@ describe(']Restful-Booker API Tests', () => {
             expect(error).to.be.undefined;
         });
 
+        /**
+     * TEST SUITE 4: Update Booking
+     * Tests PUT and PATCH /booking/:id endpoints with authorization
+     */
+    describe('Update Booking', () => {
+        it('should fully update booking with PUT using Basic Auth', async () => {
+            const updatedData = {
+                firstname: 'UpdatedJohn',
+                lastname: 'UpdatedDoe',
+                totalprice: 250,
+                depositpaid: false,
+                bookingdates: {
+                    checkin: '2024-03-01',
+                    checkout: '2024-03-10'
+                },
+                additionalneeds: 'Lunch'
+            };
+
+            const response = await bookingService.updateBooking(
+                createdBookingId,
+                updatedData,
+                authToken
+            );
+
+            // Assertion 1: Status Code
+            expect(response.status).to.equal(200);
+
+            // Assertion 2: Response Time
+            expect(response.duration).to.be.below(config.expectedResponseTime.medium);
+
+            // Assertion 3: Response Headers
+            expect(response.headers).to.have.property('content-type');
+            expect(response.headers['content-type']).to.include('application/json');
+
+            // Assertion 4: Response Body - verify all fields updated
+            expect(response.data.firstname).to.equal(updatedData.firstname);
+            expect(response.data.lastname).to.equal(updatedData.lastname);
+            expect(response.data.totalprice).to.equal(updatedData.totalprice);
+            expect(response.data.depositpaid).to.equal(updatedData.depositpaid);
+            expect(response.data.bookingdates.checkin).to.equal(updatedData.bookingdates.checkin);
+
+            // Assertion 5: Schema Validation
+            const { error } = updateBookingResponseSchema.validate(response.data);
+            expect(error).to.be.undefined;
+        });
+
+        it('should partially update booking with PATCH using Basic Auth', async () => {
+            const partialUpdate = {
+                firstname: 'PartiallyUpdated',
+                totalprice: 175
+            };
+
+            const response = await bookingService.partialUpdateBooking(
+                createdBookingId,
+                partialUpdate,
+                authToken
+            );
+
+            // Assertion 1: Status Code
+            expect(response.status).to.equal(200);
+
+            // Assertion 2: Response Time
+            expect(response.duration).to.be.below(config.expectedResponseTime.medium);
+
+            // Assertion 3: Response Headers
+            expect(response.headers).to.have.property('content-type');
+            expect(response.headers['content-type']).to.include('application/json');
+
+            // Assertion 4: Response Body - verify only specified fields updated
+            expect(response.data.firstname).to.equal(partialUpdate.firstname);
+            expect(response.data.totalprice).to.equal(partialUpdate.totalprice);
+            expect(response.data).to.have.property('lastname');
+
+            // Assertion 5: Schema Validation
+            const { error } = updateBookingResponseSchema.validate(response.data);
+            expect(error).to.be.undefined;
+        });
+    });
+
         it('should return 404 for non-existent booking ID', async () => {
             try {
                 await bookingService.getBookingById(999999999);
