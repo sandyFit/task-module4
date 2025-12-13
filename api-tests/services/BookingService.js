@@ -70,7 +70,21 @@ class BookingService {
         } catch (error) {
             throw this._handleError(error);
         }
-    }
+    };
+
+    /**
+     * Get booking details by ID
+     * @param {number} id - Booking ID
+     * @returns {Promise} Response with booking details
+     */
+    async getBookingById(id) {
+        try {
+            const response = await this.client.get(config.endpoints.bookingById(id));
+            return response;
+        } catch (error) {
+            throw this._handleError(error);
+        }
+    };
 
     /**
      * Error handler for consistent error format

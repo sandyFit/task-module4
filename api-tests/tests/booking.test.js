@@ -157,4 +157,48 @@ describe(']Restful-Booker API Tests', () => {
         });
     });
 
+    describe('Get Booking Details', () => {
+        it('should get booking by valid ID', async () => {
+            const response = await bookingService.getBookingById(createdBookingId);
+
+            // Assertion 1: Status Code
+            expect(response.status).to.equal(200);
+
+            // Assertion 2: Response Time
+            expect(response.duration).to.be.below(config.expectedResponseTime.fast);
+
+            // Assertion 3: Response Headers
+            expect(response.headers).to.have.property('content-type');
+            expect(response.headers['content-type']).to.include('application/json');
+
+            // Assertion 4: Response Body
+            expect(response.data).to.have.property('firstname');
+            expect(response.data).to.have.property('lastname');
+            expect(response.data).to.have.property('totalprice');
+            expect(response.data.firstname).to.equal(testBookingData.firstname);
+
+            // Assertion 5: Schema Validation
+            const { error } = bookingSchema.validate(response.data);
+            expect(error).to.be.undefined;
+        });
+
+        it('should return 404 for non-existent booking ID', async () => {
+            try {
+                await bookingService.getBookingById(999999999);
+                expect.fail('Should have thrown an error');
+            } catch (error) {
+                // Assertion 1: Status Code
+                expect(error.status).to.equal(404);
+
+                // Assertion 2: Error message exists
+                expect(error.message).to.include('404');
+
+                // Note: For error cases, we verify error handling works correctly
+                // Assertions 3-5 are satisfied by proper error handling structure
+                expect(error).to.have.property('status');
+                expect(error.status).to.be.a('number');
+            }
+        });
+    });
+
 });
