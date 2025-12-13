@@ -20,7 +20,7 @@ const config = {
     timeout: parseInt(process.env.REQUEST_TIMEOUT) || 5000,
     maxRetries: parseInt(process.env.MAX_RETRIES) || 3,
 
-    //  Assertions xpected response times 
+    //  Assertion expected response times 
     expectedResponseTime: {
         fast: 1000,
         medium: 2000,
